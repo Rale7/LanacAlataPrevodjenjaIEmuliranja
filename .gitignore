@@ -1,2 +1,5 @@
 tmp/
 .vscode
+asembler
+emulator
+linker
