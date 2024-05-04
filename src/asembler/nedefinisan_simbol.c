@@ -8,6 +8,7 @@
 static void nedefinisan_skok(Simbol* simbol, int kod_operacije, enum Registar rb, enum Registar rc, Sekcija* sekcija) {
 
   char oc = (char) kod_operacije;
+  oc = vrati_transliranu_instrukciju(oc);
   instrukcija_sa_simbol_bazen(oc, R15, rb, rc, simbol);
 }
 
@@ -38,6 +39,9 @@ static void nedefinisan_st_mem(Simbol* simbol, enum Registar r1, Sekcija* sekcij
 }
 
 static RelokacioniZapis* nedefinisan_nrz(Simbol* simbol, Sekcija* sekcija, int lokacija, int obracanje) {
+
+  int pomeraj = lokacija - (obracanje + 4);
+  ugradi_pomeraj_simbol(sekcija, obracanje, pomeraj);
 
   if (sekcija->trz->poslednji && sekcija->trz->poslednji->offset == lokacija) {
     return sekcija->trz->poslednji;

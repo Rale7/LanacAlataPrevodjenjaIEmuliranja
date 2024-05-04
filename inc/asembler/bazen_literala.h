@@ -40,6 +40,13 @@ typedef struct bazen_literala {
 
 BazenLiterala* init_bazen();
 
+
+/*
+  vraca -1 u slucaju da je bazen prazan,
+  a ukoliko postoji nesto u bazenu vraca 0
+  i na adresu specificiranu drugim parametrom
+  upisuje najmanju lokaciju obracanja
+*/
 int dohvati_najmanju_lokaciju(BazenLiterala*, int*);
 
 void dodaj_obracanje_literal(BazenLiterala*, int literal, int lokacija);

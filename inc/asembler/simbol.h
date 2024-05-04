@@ -65,10 +65,12 @@ Simbol* init_definisan_simbol(const char*, int, struct sekcija*);
 
 Simbol* init_nedefinisan_simbol(const char*);
 
-void prebaci_u_definisan(Simbol*, struct sekcija*);
+void prebaci_u_definisan(Simbol*, struct sekcija*, int vrednost);
 
 void prebaci_u_globalni(Simbol*);
 
 void ispisi_simbole();
+
+void ugradi_pomeraj_simbol(struct sekcija* sekcija, int obracanje, int pomeraj);
 
 #endif

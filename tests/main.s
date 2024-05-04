@@ -1,9 +1,13 @@
+# file: main.s
+
 .extern handler, mathAdd, mathSub, mathMul, mathDiv
+
 .global my_start
+
 .global value1, value2, value3, value4, value5, value6, value7
+
 .section my_code
 my_start:
-
     ld $0xFFFFFEFE, %sp
     ld $handler, %r1
     csrwr %r1, %handler
@@ -16,8 +20,6 @@ my_start:
     push %r1
     call 0xF0000000
     st %r1, value2
-
-    and %r1, %r1
 
     ld $2, %r1
     push %r1

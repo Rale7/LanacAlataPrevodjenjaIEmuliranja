@@ -12,6 +12,8 @@ enum CsrRegistar {
   STATUS, HANDLER, CAUSE
 };
 
+void provera_prekoracenja_bazena_inst();
+
 void bezadresna_inst(int kod_operacije);
 
 void instrukcija_sa_pomerajem(char kod_operacije, enum Registar ra, enum Registar rb, enum Registar rc, int pomeraj);
@@ -51,4 +53,7 @@ void push_inst(enum Registar r1);
 void pop_inst(enum Registar r1);
 
 void iret_inst();
+
+char vrati_transliranu_instrukciju(char oc);
+
 #endif

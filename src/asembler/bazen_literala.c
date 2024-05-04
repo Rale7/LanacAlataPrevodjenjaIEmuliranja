@@ -30,7 +30,7 @@ static UlazLiteral* init_UL(int literal, int lokacija) {
   Obracanje* novo_obracanje = init_obracanja(lokacija);
 
   novi->prvi = novo_obracanje;
-  novi->indirect = &(novi->prvi);
+  novi->indirect = &(novo_obracanje->sledeci);
 
   return novi;
 }
@@ -60,7 +60,7 @@ static UlazSimbol* init_US(Simbol* simbol, int lokacija) {
   Obracanje* novo_obracanje = init_obracanja(lokacija);
 
   novi->prvi = novo_obracanje;
-  novi->indirect = &(novi->prvi);
+  novi->indirect = &(novo_obracanje->sledeci);
 
   return novi;
 
@@ -143,8 +143,8 @@ void dodaj_obracanje_literal(BazenLiterala* bl, int literal, int lokacija) {
 
   UlazLiteral* novi = init_UL(literal, lokacija);
 
-  bl->prviLiteral = novi;
-  bl->indirectLiteral = &(bl->prviLiteral);
+  *(bl->indirectLiteral) = novi;
+  bl->indirectLiteral = &(novi->sledeci);
 
 }
 
@@ -164,17 +164,17 @@ void dodaj_obracanje_simbol(BazenLiterala* bl, Simbol* sim, int lokacija) {
 
   for (UlazSimbol* trenutni = bl->prviSimbol; trenutni; trenutni = trenutni->sledeci) {
     if (trenutni->simbol->redosled == sim->redosled) {
-      Obracanje* novo_obracanja = init_obracanja(lokacija);
-      *(trenutni->indirect) = novo_obracanja;
-      trenutni->indirect = &(novo_obracanja->sledeci);
+      Obracanje* novo_obracanje = init_obracanja(lokacija);
+      *(trenutni->indirect) = novo_obracanje;
+      trenutni->indirect = &(novo_obracanje->sledeci);
       return;
     }
   }
 
   UlazSimbol* novi = init_US(sim, lokacija);
 
-  bl->prviSimbol = novi;
-  bl->indirectSimbol = &(bl->prviSimbol);
+  *(bl->indirectSimbol) = novi;
+  bl->indirectSimbol = &(novi->sledeci);
 
 }
 
@@ -193,7 +193,7 @@ static void razresi_pomeraje_za_literale(Obracanje* prvi, int trenutna_lokacija,
 
   for (Obracanje* trenutni = prvi; trenutni; trenutni = trenutni->sledeci) {
 
-    int pomeraj = trenutna_lokacija - trenutni->lokacija;
+    int pomeraj = trenutna_lokacija - (trenutni->lokacija + 4);
 
     char prva_vrednost = *dohvati_sadrzaj(sekcija->sadrzaj, trenutni->lokacija + 2);
     prva_vrednost = (char)(prva_vrednost & 0xF0) | ((pomeraj & 0xF00) >> 8);

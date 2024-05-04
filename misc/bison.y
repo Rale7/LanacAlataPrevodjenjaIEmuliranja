@@ -56,18 +56,18 @@ int broj_linije = 0;
 %%
 
 program:  /* empty */
-        | program linija {printf("linija %d\n", broj_linije++);}
+        | program linija {;}
         ;
 
 linija:   '\n'           {;}
         | direktiva '\n' {;}
-        | instrukcija '\n' {;}
+        | instrukcija '\n' {provera_prekoracenja_bazena_inst();}
         | labela ':' direktiva '\n' {;}
-        | labela ':' instrukcija '\n' {;}
+        | labela ':' instrukcija '\n' {provera_prekoracenja_bazena_inst();}
         | labela  ':' '\n' {;}
         ;
 
-instrukcija:    bezadresna      {}
+instrukcija:    bezadresna      {;}
         |       uslovni_skok    {;}
         |       bezuslovni_skok {;}
         |       jednoadr_ins    {;}

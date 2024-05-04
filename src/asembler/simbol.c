@@ -10,21 +10,21 @@ static Simbol* prvi = NULL;
 static Simbol** indirect = &prvi;
 
 void lokalni_ispis(Simbol* simbol) {
-  printf("%d\t%d\tLOC\t%d\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
+  printf("%-7d\t\t%-7d\t\tLOC \t\t%-7d\t\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
 }
 
 void lokalni_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
 
-  printf("%d\t%d\t%d", relokacioni_zapis->offset, simbol->redosled, simbol->vrednost);
+  printf("%-6d\t\t%-6d\t\t%-6d", relokacioni_zapis->offset, simbol->sekcija->simbol->redosled, simbol->vrednost);
 }
 
 void globalni_ispis(Simbol* simbol) {
-  printf("%d\t%d\tGLOB\t%d\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
+  printf("%-7d\t\t%-7d\t\tGLOB\t\t%-7d\t\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
 }
 
 void globalni_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
 
-  printf("%d\t%d\t%d", relokacioni_zapis->offset, simbol->redosled, 0);
+  printf("%-6d\t\t%-6d\t\t%-6d", relokacioni_zapis->offset, simbol->redosled, 0);
 }
 
 static Tip_TVF lokalni_tvf = {
@@ -66,7 +66,17 @@ void prebaci_u_globalni(Simbol* simbol) {
 void ispisi_simbole() {
 
   printf("Tabela simbola\n");
+  printf("%-7s\t\t%-7s\t%-7s\t%-7s\t\t%s\n", "RB", "Vrednost", "Tip", "Bind", "Naziv");
   for (Simbol* simbol = prvi; simbol; simbol = simbol->sledeci) {
     simbol->tip_tvf->ispis_simbola(simbol);
   }
+}
+
+void ugradi_pomeraj_simbol(Sekcija* sekcija, int obracanje, int pomeraj) {
+  char reg_pom = *dohvati_sadrzaj(sekcija->sadrzaj, obracanje + 2);
+  reg_pom = (char)((reg_pom & 0xF0) | ((pomeraj & 0xF00) >> 8));
+  postavi_sadrzaj(sekcija->sadrzaj, obracanje + 2, &reg_pom, 1);
+  
+  char pom = (char) (pomeraj & 0xFF);
+  postavi_sadrzaj(sekcija->sadrzaj, obracanje + 3, &pom, 1);
 }
