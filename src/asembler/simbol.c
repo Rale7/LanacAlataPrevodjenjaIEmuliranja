@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <elf.h>
 #include "../../inc/asembler/simbol.h"
 #include "../../inc/asembler/sekcija.h"
 #include "../../inc/asembler/instrukcije.h"
@@ -9,33 +10,39 @@
 static Simbol* prvi = NULL;
 static Simbol** indirect = &prvi;
 
-void lokalni_ispis(Simbol* simbol) {
+static void lokalni_ispis(Simbol* simbol) {
   printf("%-7d\t\t%-7d\t\tLOC \t\t%-7d\t\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
 }
 
-void lokalni_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
+static void lokalni_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
 
   printf("%-6d\t\t%-6d\t\t%-6d", relokacioni_zapis->offset, simbol->sekcija->simbol->redosled, simbol->vrednost);
 }
 
-void globalni_ispis(Simbol* simbol) {
-  printf("%-7d\t\t%-7d\t\tGLOB\t\t%-7d\t\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
+static int lokalni_addend_rz(Simbol* simbol) {
+  return simbol->vrednost;
 }
 
-void globalni_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
+char lokalni_tip(Simbol* simbol) {
+  return STB_LOCAL;
+}
 
-  printf("%-6d\t\t%-6d\t\t%-6d", relokacioni_zapis->offset, simbol->redosled, 0);
+static int lokalni_simbol_rel(Simbol *simbol) {
+  return simbol->sekcija->simbol->redosled;
 }
 
 static Tip_TVF lokalni_tvf = {
-  &lokalni_ispis,
-  &lokalni_ispis_rz
+  .ispis_simbola = &lokalni_ispis,
+  .ispis_relokacionog_zapisa = &lokalni_ispis_rz,
+  .dohvati_dodavanje = &lokalni_addend_rz,
+  .dohvati_bind = &lokalni_tip,
+  .dohvati_tip = &dohvati_tip_nedefinisan,
+  .dohvati_simbol_rel = &lokalni_simbol_rel
 };
 
-static Tip_TVF globalni_tvf = {
-  &globalni_ispis,
-  &globalni_ispis_rz
-};
+Simbol* dohvati_prvi_simbol() {
+  return prvi;
+}
 
 Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
 
@@ -59,8 +66,8 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
   return novi;
 }
 
-void prebaci_u_globalni(Simbol* simbol) {
-  simbol->tip_tvf = &globalni_tvf;
+char dohvati_tip_nedefinisan(Simbol* simbol) {
+  return STT_NOTYPE;
 }
 
 void ispisi_simbole() {

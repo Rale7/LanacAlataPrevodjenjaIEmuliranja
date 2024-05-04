@@ -16,4 +16,6 @@ Asembler* dohvati_asembler();
 
 Sekcija* napravi_novu_sekciju(Asembler*, const char* ime);
 
+void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl);
+
 #endif

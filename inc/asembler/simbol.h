@@ -29,10 +29,18 @@ typedef struct {
 
 typedef void (*IspisiSimbol) (struct simbol*);
 typedef void (*IspisiRelokacioniZapis)(struct simbol*, struct rz*);
+typedef int (*DohvatiDodavanje) (struct simbol*);
+typedef char (*DohvatiBind) (struct simbol*);
+typedef char (*DohvatiTip) (struct simbol*);
+typedef int (*DohvatiSimbolRel) (struct simbol*);
 
 typedef struct {
   IspisiSimbol ispis_simbola;
   IspisiRelokacioniZapis ispis_relokacionog_zapisa;
+  DohvatiDodavanje dohvati_dodavanje;
+  DohvatiTip dohvati_tip;
+  DohvatiBind dohvati_bind;
+  DohvatiSimbolRel dohvati_simbol_rel;
 } Tip_TVF;
 
 typedef struct obracanje_unapred {
@@ -72,5 +80,9 @@ void prebaci_u_globalni(Simbol*);
 void ispisi_simbole();
 
 void ugradi_pomeraj_simbol(struct sekcija* sekcija, int obracanje, int pomeraj);
+
+Simbol* dohvati_prvi_simbol();
+
+char dohvati_tip_nedefinisan(Simbol* simbol);
 
 #endif

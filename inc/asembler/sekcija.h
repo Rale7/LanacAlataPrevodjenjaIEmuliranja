@@ -15,6 +15,7 @@ typedef struct sekcija {
   struct tabela_rz* trz;
   struct bazen_literala* bazen_literala;
   struct bazen_literala* prethodni_bl;
+  int broj_elf_ulaza;
 
 } Sekcija;
 
