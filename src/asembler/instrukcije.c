@@ -316,31 +316,81 @@ void iret_inst() {
 
 }
 
-static char* tabela_instrukcija_init() {
+static char* tabela_instrukcija_pomeraj_init() {
   static char tabela_instrukcija[256];
   static int first = 0;
 
   if (first) return tabela_instrukcija;
 
   tabela_instrukcija[0x20] = 0x21;
-  tabela_instrukcija[0x21] = 0x20;
+  tabela_instrukcija[0x21] = 0x21;
   tabela_instrukcija[0x30] = 0x38;
-  tabela_instrukcija[0x38] = 0x30;
+  tabela_instrukcija[0x38] = 0x38;
   tabela_instrukcija[0x31] = 0x39;
-  tabela_instrukcija[0x39] = 0x31;
+  tabela_instrukcija[0x39] = 0x39;
   tabela_instrukcija[0x32] = 0x3A;
-  tabela_instrukcija[0x3A] = 0x32;
+  tabela_instrukcija[0x3A] = 0x3A;
   tabela_instrukcija[0x33] = 0x3B;
+  tabela_instrukcija[0x3B] = 0x3B;
+  tabela_instrukcija[0x80] = 0x82;
+  tabela_instrukcija[0x82] = 0x82;
+  tabela_instrukcija[0x91] = 0x92;
+  tabela_instrukcija[0x92] = 0x92;
+  first = 1;
+
+  return tabela_instrukcija;
+}
+
+static char* tabela_instrukcija_direktno_init() {
+  static char tabela_instrukcija[256];
+  static int first = 0;
+  
+  if (first) return tabela_instrukcija;
+
+  tabela_instrukcija[0x20] = 0x20;
+  tabela_instrukcija[0x21] = 0x20;
+  tabela_instrukcija[0x30] = 0x30;
+  tabela_instrukcija[0x38] = 0x30;
+  tabela_instrukcija[0x31] = 0x31;
+  tabela_instrukcija[0x39] = 0x31;
+  tabela_instrukcija[0x32] = 0x32;
+  tabela_instrukcija[0x3A] = 0x32;
+  tabela_instrukcija[0x33] = 0x33;
   tabela_instrukcija[0x3B] = 0x33;
+  tabela_instrukcija[0x80] = 0x80;
   tabela_instrukcija[0x82] = 0x80;
+  tabela_instrukcija[0x91] = 0x91;
   tabela_instrukcija[0x92] = 0x91;
   first = 1;
 
   return tabela_instrukcija;
 }
 
-char vrati_transliranu_instrukciju(char oc) {
-  char* tabela_instrukcija = tabela_instrukcija_init();
+char transliraj_instrukciju_direktno(char oc) {
+  char* tabela_instrukcija = tabela_instrukcija_direktno_init();
+  unsigned char index = (unsigned char) oc;
 
-  return tabela_instrukcija[oc];
+  return tabela_instrukcija[index];
+}
+
+char transliraj_instrukciju_pomeraj(char oc) {
+  char* table_instrukcija = tabela_instrukcija_pomeraj_init();
+  unsigned char index = (unsigned char) oc;
+
+  return table_instrukcija[index];
+}
+
+void csr_inst(int kod_operacije, enum Registar r1, enum Registar r2) {
+  Sekcija* trenutna = dohvati_asembler()->trenutna_sekcija;
+
+  char vrednost = (char) (kod_operacije & 0xFF);
+  postavi_sadrzaj(trenutna->sadrzaj, trenutna->location_counter, (const char*)&vrednost, 1);
+  trenutna->location_counter += 1;
+
+  vrednost = (char) ((r2 & 0xF) << 4) | (r1 & 0xF);
+  postavi_sadrzaj(trenutna->sadrzaj, trenutna->location_counter, (const char*)&vrednost, 1);
+  trenutna->location_counter += 1;
+
+  popuni_nulama(trenutna->sadrzaj, trenutna->location_counter, 2);
+  trenutna->location_counter += 2;
 }

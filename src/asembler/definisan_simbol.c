@@ -4,6 +4,7 @@
 #include "../../inc/asembler/sekcija.h"
 #include "../../inc/asembler/instrukcije.h"
 #include "../../inc/asembler/relokacioni_zapis.h"
+#include "../../inc/asembler/izraz.h"
 
 static int provera_ugradjivanje(Simbol* simbol, char oc, enum Registar r1, Sekcija* sekcija) {
 
@@ -92,7 +93,7 @@ static RelokacioniZapis* definisan_nrz(Simbol* simbol, Sekcija* sekcija, int lok
     if (pomeraj >= -2048 && pomeraj < 2047) {
 
         char oc = *dohvati_sadrzaj(sekcija->sadrzaj, obracanje);
-        oc = vrati_transliranu_instrukciju(oc);
+        oc = transliraj_instrukciju_direktno(oc);
         postavi_sadrzaj(sekcija->sadrzaj, obracanje, &oc, 1);
 
         ugradi_pomeraj_simbol(sekcija, obracanje, pomeraj);
@@ -122,15 +123,23 @@ static void definisan_sdw(Simbol* simbol, Sekcija* sekcija, int lokacija) {
   }
 }
 
+static enum Relokatibilnost definisana_relokatibilnost(Simbol* simbol, Sekcija** sekcija) {
+
+  *sekcija = simbol->sekcija;
+  return RELOKATIVAN;
+}
+
 static Simbol_TVF definisan_simbol_tvf = { 
-  &definisan_skok,
-  &definisan_load_imm,
-  &definisan_load_mem,
-  &definisan_load_reg,
-  &definisan_st_mem,
-  &definisan_st_reg,
-  &definisan_nrz,
-  &definisan_sdw,
+  .skok = &definisan_skok,
+  .imm = &definisan_load_imm,
+  .ld_mem = &definisan_load_mem,
+  .ld_reg = &definisan_load_reg,
+  .st_mem = &definisan_st_mem,
+  .st_reg = &definisan_st_reg,
+  .nrz = &definisan_nrz,
+  .sdw = &definisan_sdw,
+  .dohvati_relokatibilnost = &definisana_relokatibilnost,
+  .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
 Simbol *init_definisan_simbol(const char* naziv, int vrednost, Sekcija *sekcija) {

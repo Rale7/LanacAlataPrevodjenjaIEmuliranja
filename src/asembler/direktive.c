@@ -6,6 +6,8 @@
 #include "../../inc/asembler/simbol.h"
 #include "../../inc/asembler/relokacioni_zapis.h"
 #include "../../inc/asembler/bazen_literala.h"
+#include "../../inc/asembler/neizracunjivi_simbol.h"
+#include "../../inc/asembler/tabela_neizracunjivih_simbola.h"
 
 void dodaj_labelu(const char* naziv_simbola) {
 
@@ -135,6 +137,21 @@ void skip_dir(int literal) {
 
 }
 
+void equ_dir(const char* naziv_simbola, Izraz* izraz) {
+
+  prebaci_postfix(izraz);
+  Simbol *simbol;
+
+  if ((dohvati_vrednost_simbola(dohvati_asembler()->tabel_simbola, naziv_simbola)) != NULL) {
+    prebaci_u_neizracunjiv(simbol, izraz);
+  } else {
+    Simbol* simbol = proveri_relokatibilnost_init_simbol(izraz, dohvati_asembler()->trenutna_sekcija, naziv_simbola);
+    dodaj_simbol(dohvati_asembler()->tabel_simbola, simbol);
+  }
+
+  printf("\n");
+}
+
 void ascii_dir(const char* string) {
 
   int n = strlen(string) + 1;
@@ -161,6 +178,8 @@ void end_dir() {
     upisi_bazen(asembler->trenutna_sekcija->bazen_literala, 1);
     obrisi_bazen(asembler->trenutna_sekcija->bazen_literala);
   }
+
+  razresi_TNS(dohvati_asembler()->tabela_neizrazunljivih_simbola);
 
   ispisi_simbole();
 

@@ -63,7 +63,6 @@ static UlazSimbol* init_US(Simbol* simbol, int lokacija) {
   novi->indirect = &(novo_obracanje->sledeci);
 
   return novi;
-
 }
 
 static void obrisi_US(UlazSimbol* us) {

@@ -4,8 +4,11 @@
 struct sekcija;
 struct simbol;
 struct rz;
+struct izraz;
+struct neizracunjivi_simbol;
 
 enum Registar;
+enum Relokatibilnost;
 
 typedef void (*SimbolInstSkok) (struct simbol*, int, enum Registar, enum Registar, struct sekcija*);
 typedef void (*SimbolInstLdImm) (struct simbol*, enum Registar, struct sekcija*);
@@ -15,6 +18,8 @@ typedef void (*SimbolInstStMem) (struct simbol*, enum Registar, struct sekcija*)
 typedef void (*SimbolInstStReg) (struct simbol*, enum Registar, enum Registar, struct sekcija*);
 typedef struct rz* (*NapraviRelokacioniZapis) (struct simbol*, struct sekcija* sekcija, int lokacija, int obracanje);
 typedef void (*SimbolDirWord) (struct simbol*, struct sekcija*, int lokacija);
+typedef enum Relokatibilnost (*DohvatiRelokatibilnost) (struct simbol*, struct sekcija**);
+typedef int (*NeizracunjiviIndeks) (struct simbol*);
 
 typedef struct {
   SimbolInstSkok skok;
@@ -25,6 +30,8 @@ typedef struct {
   SimbolInstStReg st_reg;
   NapraviRelokacioniZapis nrz;
   SimbolDirWord sdw;
+  DohvatiRelokatibilnost dohvati_relokatibilnost;
+  NeizracunjiviIndeks neizracunjivi_indeks;
 } Simbol_TVF;
 
 typedef void (*IspisiSimbol) (struct simbol*);
@@ -67,11 +74,15 @@ typedef struct elem {
 
 } SimbolElem;
 
+void uvezi_simbol(Simbol* novi);
+
 Simbol* init_simbol(const char*, int, struct sekcija*);
 
 Simbol* init_definisan_simbol(const char*, int, struct sekcija*);
 
 Simbol* init_nedefinisan_simbol(const char*);
+
+Simbol* init_simbolicka_konstanta(const char*, struct izraz* izraz, struct sekcija*);
 
 void prebaci_u_definisan(Simbol*, struct sekcija*, int vrednost);
 
@@ -84,5 +95,13 @@ void ugradi_pomeraj_simbol(struct sekcija* sekcija, int obracanje, int pomeraj);
 Simbol* dohvati_prvi_simbol();
 
 char dohvati_tip_nedefinisan(Simbol* simbol);
+
+void razresavanje_neizracunjivog_simbola_konstanta(struct neizracunjivi_simbol*);
+
+void prevezi_novi(Simbol* simbol);
+
+int definisan_neizracunjivi_indeks(Simbol*);
+
+void prebaci_u_simbolicku_konstantu(Simbol*, int vrednost);
 
 #endif

@@ -4,12 +4,15 @@
 #include "tabela_simbola.h"
 #include "sekcija.h"
 
+struct st_tns;
+
 typedef struct asembler {
   TabelaSimbola* tabel_simbola;
   SekcijaElem* sekcije;
   SekcijaElem** indirect;
   Sekcija* undefined;
   Sekcija* trenutna_sekcija;
+  struct st_tns* tabela_neizrazunljivih_simbola;
 } Asembler;
 
 Asembler* dohvati_asembler();

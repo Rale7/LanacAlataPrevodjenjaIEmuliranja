@@ -1,4 +1,5 @@
 %{
+#include <string.h>
 #include "bison.h"
 %}
 
@@ -8,9 +9,10 @@
 ".extern"                   {return externa;}
 ".section"                  {return section;}
 ".word"                     {return word;}
+".skip"                     {return skip;}
+".equ"                      {return equ;}
 ".ascii"                    {return ascii;}
 ".end"                      {return end;}
-".skip"                     {return skip;}
 "halt"                      {return halt;}
 "int"                       {return software_int;}
 "iret"                      {return iret;}
@@ -43,17 +45,18 @@
 "%handler"                  {yylval.num = 0; return csr_registar;}
 "%status"                   {yylval.num = 1; return csr_registar;}
 "%cause"                    {yylval.num = 2; return csr_registar;}
-[a-zA-Z_][a-zA-Z0-9_]*      { 
-                              yylval.myword = strdup(yytext);
-                              return rec;
-                            }
+\".*\"                      { yylval.myword = strdup(yytext + 1);
+                              yylval.myword[strlen(yylval.myword) - 1] = '\0';
+                              return recenica;}
+[a-zA-Z_][a-zA-Z0-9_]*      { yylval.myword = strdup(yytext);
+                              return rec;}
 0x[0-9ABCDEF]+              {yylval.num = strtol(yytext + 2, NULL, 16); return broj;}
 0b[0-9]+                    {yylval.num = strtol(yytext + 2, NULL, 2); return broj;}
 0[0-9]+                     {yylval.num = strtol(yytext + 1, NULL, 8); return broj;}
 [0-8]+                      {yylval.num = atoi(yytext); return broj;}
 [ \t]                       ;
 #.*                          ;
-[+\n,":$\[\]]  	          {return yytext[0];}
+[+\-\*/\n,":$\[\]]  	          {return yytext[0];}
                           
 
 %%

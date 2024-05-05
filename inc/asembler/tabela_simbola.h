@@ -16,6 +16,6 @@ TabelaSimbola* init_ts();
 
 Simbol* dohvati_vrednost_simbola(TabelaSimbola*, const char*);
 
-void dodaj_simbol(TabelaSimbola* ,Simbol* );
+void dodaj_simbol(TabelaSimbola*,Simbol*);
 
 #endif

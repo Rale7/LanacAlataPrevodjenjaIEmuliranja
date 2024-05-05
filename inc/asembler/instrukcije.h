@@ -52,8 +52,12 @@ void push_inst(enum Registar r1);
 
 void pop_inst(enum Registar r1);
 
+void csr_inst(int kod_operacije, enum Registar r1, enum Registar r2);
+
 void iret_inst();
 
-char vrati_transliranu_instrukciju(char oc);
+char transliraj_instrukciju_direktno(char oc);
+
+char transliraj_instrukciju_pomeraj(char oc);
 
 #endif

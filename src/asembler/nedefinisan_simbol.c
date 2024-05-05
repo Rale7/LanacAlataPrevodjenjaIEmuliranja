@@ -4,11 +4,12 @@
 #include "../../inc/asembler/sekcija.h"
 #include "../../inc/asembler/instrukcije.h"
 #include "../../inc/asembler/relokacioni_zapis.h"
+#include "../../inc/asembler/izraz.h"
 
 static void nedefinisan_skok(Simbol* simbol, int kod_operacije, enum Registar rb, enum Registar rc, Sekcija* sekcija) {
 
   char oc = (char) kod_operacije;
-  oc = vrati_transliranu_instrukciju(oc);
+  oc = transliraj_instrukciju_pomeraj(oc);
   instrukcija_sa_simbol_bazen(oc, R15, rb, rc, simbol);
 }
 
@@ -62,17 +63,25 @@ static void nedefinisan_sdw(Simbol* simbol, Sekcija* sekcija, int lokacija) {
   novo->lokacija = lokacija;
   novo->sekcija = sekcija;
   novo->sledeci = simbol->oulista;
+  simbol->oulista = novo;
+}
+
+static enum Relokatibilnost nedefinisana_relokatibilnost(Simbol* simbol, Sekcija** sekcija) {
+  
+  return NEIZRACUNJIV;
 }
 
 static Simbol_TVF nedefinisan_simbol_tvf = { 
-  &nedefinisan_skok,
-  &nedefinisan_load_imm,
-  &nedefinisan_load_mem,
-  &nedefinisan_load_reg,
-  &nedefinisan_st_mem,
-  &nedefinisan_st_reg,
-  &nedefinisan_nrz,
-  &nedefinisan_sdw
+  .skok = &nedefinisan_skok,
+  .imm = &nedefinisan_load_imm,
+  .ld_mem = &nedefinisan_load_mem,
+  .ld_reg = &nedefinisan_load_reg,
+  .st_mem = &nedefinisan_st_mem,
+  .st_reg = &nedefinisan_st_reg,
+  .nrz = &nedefinisan_nrz,
+  .sdw = &nedefinisan_sdw,
+  .dohvati_relokatibilnost = &nedefinisana_relokatibilnost,
+  .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
 Simbol* init_nedefinisan_simbol(const char* naziv) {

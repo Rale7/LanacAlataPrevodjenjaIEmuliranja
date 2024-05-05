@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "../../inc/asembler/asembler.h"
 #include "../../inc/asembler/bazen_literala.h"
+#include "../../inc/asembler/tabela_neizracunjivih_simbola.h"
 
 static Asembler* init_asembler() {
 
@@ -12,6 +13,7 @@ static Asembler* init_asembler() {
   }
 
   asembler->tabel_simbola = init_ts();
+  asembler->tabela_neizrazunljivih_simbola = init_TNS();
   asembler->sekcije = NULL;
   asembler->indirect = &(asembler->sekcije);
 

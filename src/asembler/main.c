@@ -50,7 +50,9 @@ int main(int argc, char* argv[]) {
 
   close(file_dsc);
 
-  napravi_elf_file(dohvati_asembler(), ime_izlazne_datoteke);
+  if (status == 0) {
+    napravi_elf_file(dohvati_asembler(), ime_izlazne_datoteke);
+  }
 
   return status;
 

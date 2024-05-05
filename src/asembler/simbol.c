@@ -44,13 +44,21 @@ Simbol* dohvati_prvi_simbol() {
   return prvi;
 }
 
-Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
-
+void uvezi_simbol(Simbol* novi) {
   static int inicijalizator = 0;
 
-  Simbol* novi = (Simbol*) malloc(sizeof(Simbol));
-
   novi->redosled = inicijalizator++;
+  *indirect = novi;
+  indirect = &(novi->sledeci);
+}
+
+Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
+
+  Simbol* novi = (Simbol*) malloc(sizeof(Simbol));
+  if (novi == NULL) {
+    exit(1);
+  }
+
   novi->naziv = naziv;
   novi->vrednost = vrednost;
   
@@ -58,13 +66,15 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
   novi->sekcija = sekcija;
   novi->oulista = NULL;
 
-  novi->tip_tvf = &lokalni_tvf;
+  uvezi_simbol(novi);
 
-  *indirect = novi;
-  indirect = &(novi->sledeci);
+  novi->tip_tvf = &lokalni_tvf;
 
   return novi;
 }
+
+
+
 
 char dohvati_tip_nedefinisan(Simbol* simbol) {
   return STT_NOTYPE;
@@ -86,4 +96,23 @@ void ugradi_pomeraj_simbol(Sekcija* sekcija, int obracanje, int pomeraj) {
   
   char pom = (char) (pomeraj & 0xFF);
   postavi_sadrzaj(sekcija->sadrzaj, obracanje + 3, &pom, 1);
+}
+
+int definisan_neizracunjivi_indeks(Simbol* simbol) {
+  
+  return -1;
+}
+
+void prevezi_novi(Simbol* simbol) {
+
+  for (Simbol** indirect = &prvi; *indirect; indirect = &(*indirect)->sledeci) {
+
+    if ((*indirect)->redosled == simbol->redosled) {
+      simbol->sledeci = (*indirect)->sledeci;
+      Simbol* stari = *indirect;
+      (*indirect) = simbol;
+      free(stari);
+      return;
+    }
+  }
 }

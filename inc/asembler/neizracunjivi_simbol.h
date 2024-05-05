@@ -3,31 +3,23 @@
 
 #include "simbol.h"
 
-struct simbol;
+struct izraz;
 
-enum Operator {SABIRANJE, ODUZIMANJE, MNOZENJE, DELJENJE};
+typedef struct obracanje_instrukcije {
+  int lokacija;
+  struct sekcija* sekcija;
+  struct obracanje_instrukcije* sledeci;
+} ObracanjeInstrukcije;
 
-typedef struct izraz
-{
-  
-  enum Operator oper;
-  struct simbol* simbol;
-  struct izraz* sledeci;
-
-} Izraz;
-
-typedef struct {
-
-  struct simbol* simbol;
-  Izraz* prvi;
-  Izraz** indirect;
-
+typedef struct neizracunjivi_simbol {
+  Simbol simbol;
+  int neizracunjivi_id;
+  struct izraz* izraz;
+  ObracanjeInstrukcije* prvi;
 } NeizracunjiviSimbol;
 
-NeizracunjiviSimbol* init_ns(struct simbol*);
+NeizracunjiviSimbol* init_neizracunjivi_simbol(const char*, struct sekcija*, struct izraz*);
 
-void dodaj_izraz(NeizracunjiviSimbol*, enum Operator, struct simbol*);
-
-int razresi_izraze(NeizracunjiviSimbol*);
+Simbol* prebaci_u_neizracunjiv(Simbol* simbol, struct izraz* izraz);
 
 #endif
