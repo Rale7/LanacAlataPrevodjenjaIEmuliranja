@@ -12,15 +12,19 @@ int upisi_relokacione_zapise(int fd, RelokacioniZapis* rel) {
   int cnt = 0;
 
   for (; rel; rel = rel->sledeci) {
-    cnt++;
 
-    Elf32_Rela relokacioni_zapis = {
-      .r_offset = rel->offset,
-      .r_info = ELF32_R_INFO(rel->simbol->tip_tvf->dohvati_simbol_rel(rel->simbol), 0),
-      .r_addend = rel->simbol->tip_tvf->dohvati_dodavanje(rel->simbol)
-    };
+    int simbol_rel = rel->simbol->tip_tvf->dohvati_simbol_rel(rel->simbol);
+    if (simbol_rel != -1) {
+      cnt++;
 
-    write(fd, &relokacioni_zapis, sizeof(Elf32_Rela));
+      Elf32_Rela relokacioni_zapis = {
+        .r_offset = rel->offset,
+        .r_info = ELF32_R_INFO(simbol_rel, 0),
+        .r_addend = rel->simbol->tip_tvf->dohvati_dodavanje(rel->simbol)
+      };
+
+      write(fd, &relokacioni_zapis, sizeof(Elf32_Rela));
+    }
   }
 
   return cnt;
@@ -107,6 +111,8 @@ void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
       trenutna_pozicija_sadrzaja = lseek(fd, 0, SEEK_CUR);
       int broj_zapisa = upisi_relokacione_zapise(fd, sekcija->trz->prvi);
       zagljavlja = safe_realloc(zagljavlja, broj_zaglavlja);
+
+      if (broj_zapisa == 0) continue;
 
       zagljavlja[broj_zaglavlja] = (Elf32_Shdr) {
         .sh_name = indeks_stringa_rel,

@@ -56,6 +56,12 @@ typedef struct obracanje_unapred {
   struct sekcija* sekcija;
 } ObracanjeUnapred;
 
+typedef struct obracanje_instrukcije {
+  int lokacija;
+  struct sekcija* sekcija;
+  struct obracanje_instrukcije* sledeci;
+} ObracanjeInstrukcije;
+
 typedef struct simbol {
   int redosled;
   int vrednost;
@@ -65,6 +71,8 @@ typedef struct simbol {
   ObracanjeUnapred* oulista;
   Simbol_TVF* tvf;
   Tip_TVF* tip_tvf;
+  struct neizracunjivi_simbol* neizracunjivi;
+  ObracanjeInstrukcije* oilista;
 } Simbol;
 
 typedef struct elem {
@@ -96,12 +104,12 @@ Simbol* dohvati_prvi_simbol();
 
 char dohvati_tip_nedefinisan(Simbol* simbol);
 
-void razresavanje_neizracunjivog_simbola_konstanta(struct neizracunjivi_simbol*);
-
-void prevezi_novi(Simbol* simbol);
+void razresavanje_neizracunjivog_simbola_konstanta(Simbol*);
 
 int definisan_neizracunjivi_indeks(Simbol*);
 
 void prebaci_u_simbolicku_konstantu(Simbol*, int vrednost);
+
+ObracanjeInstrukcije* init_obracanje_instrukcija(struct sekcija* sekcija, int lokacija);
 
 #endif

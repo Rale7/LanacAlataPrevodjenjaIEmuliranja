@@ -157,6 +157,10 @@ void prebaci_u_definisan(Simbol* simbol, Sekcija* sekcija, int vrednost) {
     exit(1);
   }
 
+  simbol->vrednost = vrednost;
+  simbol->sekcija = sekcija;
+  simbol->tvf = &definisan_simbol_tvf;
+
   while (simbol->oulista) {
     ObracanjeUnapred* stari = simbol->oulista;
     simbol->oulista = simbol->oulista->sledeci;
@@ -164,8 +168,5 @@ void prebaci_u_definisan(Simbol* simbol, Sekcija* sekcija, int vrednost) {
     definisan_sdw(simbol, stari->sekcija, stari->lokacija);
     free(stari);
   }
-  
-  simbol->vrednost = vrednost;
-  simbol->sekcija = sekcija;
-  simbol->tvf = &definisan_simbol_tvf;
+
 }

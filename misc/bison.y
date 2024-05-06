@@ -60,7 +60,7 @@ Izraz* izraz = NULL;
 %%
 
 program:  /* empty */
-        | program linija {printf("linija %d\n", broj_linije++);}
+        | program linija {;}
         ;
 
 linija:   '\n'           {;}

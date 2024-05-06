@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "../../inc/asembler/simbol.h"
 #include "../../inc/asembler/izraz.h"
 #include "../../inc/asembler/sekcija.h"
@@ -7,6 +8,9 @@
 #include "../../inc/asembler/direktive.h"
 #include "../../inc/asembler/relokacioni_zapis.h"
 #include "../../inc/asembler/neizracunjivi_simbol.h"
+
+void lokalni_ispis(Simbol* simbol);
+char lokalni_tip(Simbol* simbol);
 
 static void simkonst_skok(Simbol* simbol, int kod_operacije, enum Registar r1, enum Registar r2, Sekcija* sekcija) {
 
@@ -82,11 +86,32 @@ static Simbol_TVF simbolicka_konstanta_TVF = {
   .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
+static void simkonst_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
+}
+
+static int simkonst_addend_rz(Simbol* simbol) {
+  return simbol->vrednost;
+}
+
+static int simkonst_simbol_rel(Simbol *simbol) {
+  return -1;
+}
+
+static Tip_TVF simbolicki_tip_TVF = {
+  .ispis_simbola = &lokalni_ispis,
+  .ispis_relokacionog_zapisa = &simkonst_ispis_rz,
+  .dohvati_dodavanje = &simkonst_addend_rz,
+  .dohvati_bind = &lokalni_tip,
+  .dohvati_tip = &dohvati_tip_nedefinisan,
+  .dohvati_simbol_rel = &simkonst_simbol_rel
+};
+
 Simbol* init_simbolicka_konstanta(const char* simbol, Izraz* izraz, Sekcija* sekcija) {
   int vrednost = izracunaj_vrednost_izraza(izraz);
 
   Simbol* novi = init_simbol(simbol, vrednost, sekcija);
   novi->tvf = &simbolicka_konstanta_TVF;
+  novi->tip_tvf = &simbolicki_tip_TVF;
 
   return novi;
 }
@@ -94,19 +119,30 @@ Simbol* init_simbolicka_konstanta(const char* simbol, Izraz* izraz, Sekcija* sek
 void prebaci_u_simbolicku_konstantu(Simbol* simbol, int vrednost) {
   simbol->vrednost = vrednost;
   simbol->tvf = &simbolicka_konstanta_TVF;
+  simbol->tip_tvf = &simbolicki_tip_TVF;
+
+  while (simbol->oulista) {
+    ObracanjeUnapred* stari = simbol->oulista;
+    simbol->oulista = simbol->oulista->sledeci;
+
+    postavi_sadrzaj(stari->sekcija->sadrzaj, stari->lokacija, (const char*) &simbol->vrednost, 4);
+    free(stari);
+  }
+
+  razresavanje_neizracunjivog_simbola_konstanta(simbol);
 }
 
-void razresavanje_neizracunjivog_simbola_konstanta(NeizracunjiviSimbol* neizracunjivi_simbol) {
+void razresavanje_neizracunjivog_simbola_konstanta(Simbol* simbol) {
 
-  if (neizracunjivi_simbol->simbol.vrednost < -2048 || neizracunjivi_simbol->simbol.vrednost > 2047) {
+  if (simbol->vrednost < -2048 || simbol->vrednost > 2047) {
     return;
   }
 
-  for (ObracanjeInstrukcije* obracanje = neizracunjivi_simbol->prvi; obracanje; obracanje = obracanje->sledeci) {
+  for (ObracanjeInstrukcije* obracanje = simbol->oilista; obracanje; obracanje = obracanje->sledeci) {
 
     char oc = *dohvati_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija);
     oc = transliraj_instrukciju_direktno(oc);
-    int pomeraj = neizracunjivi_simbol->simbol.vrednost;
+    int pomeraj = simbol->vrednost;
 
     postavi_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija, &oc, sizeof(oc));
 

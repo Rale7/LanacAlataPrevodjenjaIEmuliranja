@@ -71,27 +71,43 @@ static int prazan_stek_NE(StekNE* vrh) {
   return vrh == NULL;
 }
 
-void topolosko_sortiranje_util(NeizracunjiviElem**graf, NeizracunjiviSimbol** simboli,
- int indeks, int* obidjeni, StekNE** stek) {
+int topolosko_sortiranje_util(NeizracunjiviElem**graf, NeizracunjiviSimbol** simboli,
+ int indeks, int* obidjeni, StekNE** stek, int* rek_stek) {
 
-  obidjeni[indeks] = 1;
+  if (!obidjeni[indeks]) {
+    obidjeni[indeks] = 1;
+    rek_stek[indeks] = 1;
 
-  for (NeizracunjiviElem* tekuci = graf[indeks]; tekuci; tekuci = tekuci->sledeci) {
-    if (!obidjeni[tekuci->simbol->neizracunjivi_id]) {
-      topolosko_sortiranje_util(graf, simboli, tekuci->simbol->neizracunjivi_id, obidjeni, stek);
+    for (NeizracunjiviElem* tekuci = graf[indeks]; tekuci; tekuci = tekuci->sledeci) {
+      
+      if (!obidjeni[tekuci->simbol->neizracunjivi_id] &&
+        topolosko_sortiranje_util(graf, simboli, tekuci->simbol->neizracunjivi_id, obidjeni, stek, rek_stek)) {
+          return 1;
+      } else if (rek_stek[tekuci->simbol->neizracunjivi_id]) {
+        return 1;
+      }
     }
+
   }
 
   stek_push_NE(stek, simboli[indeks]);
+
+  rek_stek[indeks] = 0;
+  return 0;
 }
 
 void topolosko_sortiranje(NeizracunjiviElem** graf, NeizracunjiviSimbol** simboli, int velicina) {
   StekNE* stek = NULL;
   int* obidjeni = (int*) calloc(velicina, sizeof(int));
+  int* rec_stek = (int*) calloc(velicina, sizeof(int));
 
   for (int i = 0; i < velicina; i++) {
     if (!obidjeni[i]) {
-      topolosko_sortiranje_util(graf, simboli, i, obidjeni, &stek);
+      int status = topolosko_sortiranje_util(graf, simboli, i, obidjeni, &stek, rec_stek);
+      if (status == 1) {
+        printf("Simboli su medjusobno ciklicno zavisni jedni od drugih\n");
+        exit(1);
+      }
     }
   }
 
@@ -101,8 +117,10 @@ void topolosko_sortiranje(NeizracunjiviElem** graf, NeizracunjiviSimbol** simbol
     enum Relokatibilnost status = proveri_relokatibilnost(ns->izraz, &sekcija_rel);
 
     if (status == APSOLUTAN) {
-      prebaci_u_simbolicku_konstantu((Simbol*) ns, izracunaj_vrednost_izraza(ns->izraz));
-      razresavanje_neizracunjivog_simbola_konstanta(ns);
+      prebaci_u_simbolicku_konstantu(ns->simbol, izracunaj_vrednost_izraza(ns->izraz));
+      razresavanje_neizracunjivog_simbola_konstanta(ns->simbol);
+    } else if (status == RELOKATIVAN) {
+      prebaci_u_definisan(ns->simbol, sekcija_rel, izracunaj_vrednost_izraza(ns->izraz));
     }
   }
 }
@@ -117,7 +135,7 @@ void razresi_TNS(TNS* tns) {
 
   int cnt = 0;
   for (NeizracunjiviElem* tekuci = tns->prvi; tekuci; tekuci = tekuci->sledeci) {
-      simboli[cnt++] = tekuci->simbol;
+      simboli[tns->broj_simbola - ++cnt] = tekuci->simbol;
 
       for (ClanIzraza* clan = tekuci->simbol->izraz->prvi; clan; clan = clan->sledeci) {
 
@@ -127,7 +145,7 @@ void razresi_TNS(TNS* tns) {
 
           NeizracunjiviElem* ne = init_NE(tekuci->simbol);
           ne->sledeci = graf[indeks];
-          graf[indeks]->sledeci = ne;
+          graf[indeks] = ne;
         }
       }
   }

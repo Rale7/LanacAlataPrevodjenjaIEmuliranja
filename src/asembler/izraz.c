@@ -19,7 +19,7 @@ static SekcijaRel* init_sekcija_rel(int broj_pojavljivanja, Sekcija* sekcija) {
   return novi;
 }
 
-static void dodaj_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
+static SekcijaRel* dodaj_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
   SekcijaRel** indirect;
 
   for (indirect = &prvi; *indirect; indirect = &(*indirect)->sledeci) {
@@ -29,7 +29,7 @@ static void dodaj_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
     }
     if ((*indirect)->sekcija->simbol->redosled == sekcija->simbol->redosled) {
       (*indirect)->broj_pojavljivanja++;
-      return;
+      return prvi;
     }
     if ((*indirect)->broj_pojavljivanja == 0) {
       SekcijaRel* stari;
@@ -39,9 +39,11 @@ static void dodaj_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
   }
 
   (*indirect) = init_sekcija_rel(1, sekcija);
+
+  return prvi;
 }
 
-static void skloni_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
+static SekcijaRel* skloni_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
   SekcijaRel** indirect;
 
   for (indirect = &prvi; *indirect; indirect = &(*indirect)->sledeci) {
@@ -51,7 +53,7 @@ static void skloni_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
     }
     if ((*indirect)->sekcija->simbol->redosled == sekcija->simbol->redosled) {
       (*indirect)->broj_pojavljivanja--;
-      return;
+      return prvi;
     }
     if ((*indirect)->broj_pojavljivanja == 0) {
       SekcijaRel* stari;
@@ -61,6 +63,8 @@ static void skloni_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
   }
 
   (*indirect) = init_sekcija_rel(-1, sekcija);
+
+  return prvi;
 }
 
 static int sab_oduz_rp() {
@@ -107,7 +111,7 @@ static ClanIzraza* delj_oper(ClanIzraza* op1, ClanIzraza* op2) {
   return novi;
 }
 
-static void greska_relokatibilnost(SekcijaRel* sekcija_rel, Sekcija* sekcija) {
+static SekcijaRel* greska_relokatibilnost(SekcijaRel* sekcija_rel, Sekcija* sekcija) {
 
   printf("Simbol ne moze biti relokativan u odnosu na mnozenje i deljenje\n");
   exit(1);
@@ -253,7 +257,7 @@ Simbol* proveri_relokatibilnost_init_simbol(Izraz* izraz, Sekcija* sekcija, cons
   if (status == NEIZRACUNJIV) {
     NeizracunjiviSimbol* novi = init_neizracunjivi_simbol(naziv_simbola, sekcija, izraz);
     dodaj_neizracunjivi_simbol(dohvati_asembler()->tabela_neizrazunljivih_simbola, novi); 
-    return (Simbol*)novi;
+    return novi->simbol;
   } else if (status == APSOLUTAN) {
     return init_simbolicka_konstanta(naziv_simbola, izraz, sekcija);
   } else if (status == RELOKATIVAN) {
@@ -279,7 +283,7 @@ enum Relokatibilnost proveri_relokatibilnost(Izraz* izraz, Sekcija** sekcija) {
       if (status == NEIZRACUNJIV) {
         return NEIZRACUNJIV;
       } else if (status == RELOKATIVAN) {
-        trenutni->deo.operator->dodaj_relokatibilnost(sekcija_rel, relokativan);
+        sekcija_rel = trenutni->deo.operator->dodaj_relokatibilnost(sekcija_rel, relokativan);
       }
     } else {
       vrh = push_stek(vrh, trenutni);
@@ -298,7 +302,7 @@ enum Relokatibilnost proveri_relokatibilnost(Izraz* izraz, Sekcija** sekcija) {
     if (status == NEIZRACUNJIV) {
       return NEIZRACUNJIV;
     } else if (status == RELOKATIVAN) {
-      dodaj_pojavljivanje(sekcija_rel, relokativan);
+      sekcija_rel = dodaj_pojavljivanje(sekcija_rel, relokativan);
     }
   }
 
@@ -326,6 +330,7 @@ int izracunaj_vrednost_izraza(Izraz* izraz) {
       vrh = pop_stek(vrh);
 
       ClanIzraza* novi = trenutni->deo.operator->operacija(op2, op1);
+      vrh = push_stek(vrh, novi);
       dodaj_clan(izraz, novi);
       
     } else {
@@ -333,7 +338,13 @@ int izracunaj_vrednost_izraza(Izraz* izraz) {
     }
   }
 
-  int vrednost = top_stek(vrh)->deo.literal;
+  ClanIzraza* clan = top_stek(vrh);
+  int vrednost;
+  if (clan->klasifikator == SIMBOL) {
+    vrednost = clan->deo.simbol->vrednost;
+  } else {
+    vrednost = clan->deo.literal;
+  }
   vrh = pop_stek(vrh);
 
   obrisi_izraz(tmp_izraz);

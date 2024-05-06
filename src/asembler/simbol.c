@@ -10,7 +10,20 @@
 static Simbol* prvi = NULL;
 static Simbol** indirect = &prvi;
 
-static void lokalni_ispis(Simbol* simbol) {
+ObracanjeInstrukcije* init_obracanje_instrukcija(Sekcija* sekcija, int lokacija) {
+
+  ObracanjeInstrukcije* novo = (ObracanjeInstrukcije*) malloc(sizeof(ObracanjeInstrukcije));
+  if (novo == NULL) {
+    exit(1);
+  }
+
+  novo->sekcija = sekcija;
+  novo->lokacija = lokacija;
+
+  return novo;
+}
+
+void lokalni_ispis(Simbol* simbol) {
   printf("%-7d\t\t%-7d\t\tLOC \t\t%-7d\t\t%s\n", simbol->redosled, simbol->vrednost, simbol->sekcija->simbol->redosled, simbol->naziv);
 }
 
@@ -65,6 +78,8 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
   novi->sledeci = NULL;
   novi->sekcija = sekcija;
   novi->oulista = NULL;
+  novi->oilista = NULL;
+  novi->neizracunjivi = NULL;
 
   uvezi_simbol(novi);
 
@@ -72,9 +87,6 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
 
   return novi;
 }
-
-
-
 
 char dohvati_tip_nedefinisan(Simbol* simbol) {
   return STT_NOTYPE;
@@ -101,18 +113,4 @@ void ugradi_pomeraj_simbol(Sekcija* sekcija, int obracanje, int pomeraj) {
 int definisan_neizracunjivi_indeks(Simbol* simbol) {
   
   return -1;
-}
-
-void prevezi_novi(Simbol* simbol) {
-
-  for (Simbol** indirect = &prvi; *indirect; indirect = &(*indirect)->sledeci) {
-
-    if ((*indirect)->redosled == simbol->redosled) {
-      simbol->sledeci = (*indirect)->sledeci;
-      Simbol* stari = *indirect;
-      (*indirect) = simbol;
-      free(stari);
-      return;
-    }
-  }
 }

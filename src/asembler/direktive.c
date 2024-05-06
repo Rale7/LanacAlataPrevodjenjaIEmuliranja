@@ -142,8 +142,8 @@ void equ_dir(const char* naziv_simbola, Izraz* izraz) {
   prebaci_postfix(izraz);
   Simbol *simbol;
 
-  if ((dohvati_vrednost_simbola(dohvati_asembler()->tabel_simbola, naziv_simbola)) != NULL) {
-    prebaci_u_neizracunjiv(simbol, izraz);
+  if ((simbol = dohvati_vrednost_simbola(dohvati_asembler()->tabel_simbola, naziv_simbola)) != NULL) {
+    prebaci_u_neizracunjiv(simbol, izraz, dohvati_asembler()->trenutna_sekcija);
   } else {
     Simbol* simbol = proveri_relokatibilnost_init_simbol(izraz, dohvati_asembler()->trenutna_sekcija, naziv_simbola);
     dodaj_simbol(dohvati_asembler()->tabel_simbola, simbol);
