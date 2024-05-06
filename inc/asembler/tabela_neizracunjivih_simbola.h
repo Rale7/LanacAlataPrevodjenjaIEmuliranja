@@ -15,6 +15,8 @@ typedef struct st_tns{
 
 TNS* init_TNS();
 
+void obrisi_TNS(TNS*);
+
 void dodaj_neizracunjivi_simbol(TNS*, NeizracunjiviSimbol*);
 
 void razresi_TNS(TNS*);

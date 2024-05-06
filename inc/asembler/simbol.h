@@ -86,6 +86,10 @@ void uvezi_simbol(Simbol* novi);
 
 Simbol* init_simbol(const char*, int, struct sekcija*);
 
+void obrisi_simbol(Simbol*);
+
+void obrisi_simbole();
+
 Simbol* init_definisan_simbol(const char*, int, struct sekcija*);
 
 Simbol* init_nedefinisan_simbol(const char*);

@@ -64,3 +64,17 @@ Sekcija* init_sekcija(const char* ime, Simbol* simbol) {
 
   return nova;
 }
+
+void obrisi_sekciju(Sekcija* sekcija) {
+
+  obrisi_trz(sekcija->trz);
+
+  if (sekcija->prethodni_bl) {
+    obrisi_bazen(sekcija->bazen_literala);
+  }
+
+  free(sekcija->sadrzaj->byte);
+  free(sekcija->sadrzaj);
+
+  free(sekcija);
+}

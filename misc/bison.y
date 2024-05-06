@@ -139,7 +139,7 @@ direktiva: global lista_global_dir      {;}
          | word lista_word_simbola      {;}
          | skip broj                    {skip_dir($2);}
          | ascii recenica               {printf("%s\n", $2);ascii_dir($2);}
-         | end                          {end_dir();}
+         | end                          {end_dir();YYACCEPT;}
          | equ rec ',' equ_izraz        {equ_dir($2, izraz); izraz = NULL;}
          ;
 lista_global_dir:  rec                    {global_dir($1);}

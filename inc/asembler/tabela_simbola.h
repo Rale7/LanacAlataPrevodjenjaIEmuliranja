@@ -14,6 +14,8 @@ typedef struct {
 
 TabelaSimbola* init_ts();
 
+void obrisi_tabelu_simbola(TabelaSimbola*);
+
 Simbol* dohvati_vrednost_simbola(TabelaSimbola*, const char*);
 
 void dodaj_simbol(TabelaSimbola*,Simbol*);

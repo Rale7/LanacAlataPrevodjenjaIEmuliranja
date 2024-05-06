@@ -64,3 +64,21 @@ Sekcija* napravi_novu_sekciju(Asembler* asembler, const char* ime) {
 
 }
 
+void obrisi_asembler(Asembler* asembler) {
+  
+  while (asembler->sekcije) {
+    SekcijaElem* stari = asembler->sekcije;
+    asembler->sekcije = asembler->sekcije->sledeci;
+    obrisi_sekciju(stari->sekcija);
+    free(stari);
+  }
+
+  obrisi_sekciju(asembler->undefined);
+
+  obrisi_TNS(asembler->tabela_neizrazunljivih_simbola);
+  obrisi_tabelu_simbola(asembler->tabel_simbola);
+  
+  obrisi_simbole();
+
+  free(asembler);
+}

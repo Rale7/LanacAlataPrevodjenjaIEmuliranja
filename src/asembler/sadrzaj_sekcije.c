@@ -25,6 +25,10 @@ SadrzajSekcije* init_sadrzaj_sekcije() {
   }
 
   novi->byte = (char*) malloc(POCETNI_KAPACITET * sizeof(char));
+  if (novi->byte == NULL) {
+    exit(1);
+  }
+
   novi->kapacitet = POCETNI_KAPACITET;
 
   return novi;

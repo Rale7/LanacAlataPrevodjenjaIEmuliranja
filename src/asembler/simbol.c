@@ -114,3 +114,31 @@ int definisan_neizracunjivi_indeks(Simbol* simbol) {
   
   return -1;
 }
+
+void obrisi_simbol(Simbol* simbol) {
+
+  while (simbol->oilista) {
+    ObracanjeInstrukcije* stari = simbol->oilista;
+    simbol->oilista = simbol->oilista->sledeci;
+    free(stari);
+  }
+
+  while (simbol->oulista) {
+    ObracanjeUnapred* stari = simbol->oulista;
+    simbol->oulista = simbol->oulista->sledeci;
+    free(stari);
+  }
+
+  free(simbol);
+
+}
+
+void obrisi_simbole() {
+
+  while (prvi) {
+    Simbol* stari = prvi;
+    prvi = prvi->sledeci;
+    obrisi_simbol(stari);
+  }
+
+}

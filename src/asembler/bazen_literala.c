@@ -67,7 +67,7 @@ static UlazSimbol* init_US(Simbol* simbol, int lokacija) {
 
 static void obrisi_US(UlazSimbol* us) {
 
-   while (us->prvi) {
+  while (us->prvi) {
     Obracanje* stari = us->prvi;
     us->prvi = us->prvi->sledeci;
     free(stari);

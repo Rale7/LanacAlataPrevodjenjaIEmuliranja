@@ -28,6 +28,20 @@ static NeizracunjiviElem* init_NE(NeizracunjiviSimbol* ns) {
   return novi;
 }
 
+void obrisi_TNS(TNS* tns) {
+
+  while (tns->prvi) {
+    NeizracunjiviElem* stari = tns->prvi;
+    tns->prvi = tns->prvi->sledeci;
+    obrisi_izraz(stari->simbol->izraz);
+    free(stari->simbol);
+    free(stari);
+  }
+
+  free(tns);
+
+}
+
 void dodaj_neizracunjivi_simbol(TNS* tns, NeizracunjiviSimbol* simbol) {
 
   NeizracunjiviElem* ne = init_NE(simbol);
@@ -123,6 +137,9 @@ void topolosko_sortiranje(NeizracunjiviElem** graf, NeizracunjiviSimbol** simbol
       prebaci_u_definisan(ns->simbol, sekcija_rel, izracunaj_vrednost_izraza(ns->izraz));
     }
   }
+
+  free(obidjeni);
+  free(rec_stek);
 }
 
 void razresi_TNS(TNS* tns) {

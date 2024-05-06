@@ -26,6 +26,21 @@ TabelaSimbola* init_ts() {
 
 }
 
+void obrisi_tabelu_simbola(TabelaSimbola* ts) {
+
+  for (int i = 0; i < BROJ_ULAZA_TS; i++) {
+
+    while (ts->prvi[i]) {
+      SimbolElem* stari = ts->prvi[i];
+      ts->prvi[i] = ts->prvi[i]->sledeci;
+      free(stari);
+    }
+  }
+
+  free(ts);
+
+}
+
 Simbol* dohvati_vrednost_simbola(TabelaSimbola* ts, const char* ime) {
 
   int broj_ulaza = nadji_ulaz(ime);

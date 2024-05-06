@@ -54,6 +54,8 @@ int main(int argc, char* argv[]) {
     napravi_elf_file(dohvati_asembler(), ime_izlazne_datoteke);
   }
 
+  obrisi_asembler(dohvati_asembler());
+
   return status;
 
 }

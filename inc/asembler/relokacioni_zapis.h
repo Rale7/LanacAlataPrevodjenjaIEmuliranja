@@ -24,6 +24,8 @@ RelokacioniZapis* init_RZ(int offset, struct simbol*);
 
 TabelaRZ* init_TRZ();
 
+void obrisi_trz(TabelaRZ*);
+
 void dodaj_relokacioni_zapis(TabelaRZ*, RelokacioniZapis*);
 
 #endif

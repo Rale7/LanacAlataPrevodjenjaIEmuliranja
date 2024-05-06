@@ -29,6 +29,17 @@ TabelaRZ* init_TRZ() {
   return nova;
 }
 
+void obrisi_trz(TabelaRZ* trz) {
+
+  while (trz->prvi) {
+    RelokacioniZapis* stari = trz->prvi;
+    trz->prvi = trz->prvi->sledeci;
+    free(stari);
+  }
+
+  free(trz);
+}
+
 void dodaj_relokacioni_zapis(TabelaRZ* trz, RelokacioniZapis* rz) {
 
   if (!trz->prvi) {

@@ -26,4 +26,6 @@ typedef struct sekcija_elem{
 
 Sekcija* init_sekcija(const char*, struct simbol*);
 
+void obrisi_sekciju(Sekcija*);
+
 #endif
