@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <elf.h>
 #include "../../inc/asembler/simbol.h"
 #include "../../inc/asembler/izraz.h"
 #include "../../inc/asembler/sekcija.h"
@@ -83,7 +84,6 @@ static Simbol_TVF simbolicka_konstanta_TVF = {
   .nrz = &simkonst_napr_rel_zapis,
   .sdw = &simkonst_word,
   .dohvati_relokatibilnost = &simkonst_relokitibilnost,
-  .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
 static void simkonst_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapis) {
@@ -91,6 +91,10 @@ static void simkonst_ispis_rz(Simbol* simbol, RelokacioniZapis* relokacioni_zapi
 
 static int simkonst_addend_rz(Simbol* simbol) {
   return simbol->vrednost;
+}
+
+static int simbkonst_referisana_sekcija(Simbol* simbol) {
+  return SHN_ABS;
 }
 
 static int simkonst_simbol_rel(Simbol *simbol) {
@@ -103,7 +107,8 @@ static Tip_TVF simbolicki_tip_TVF = {
   .dohvati_dodavanje = &simkonst_addend_rz,
   .dohvati_bind = &lokalni_tip,
   .dohvati_tip = &dohvati_tip_nedefinisan,
-  .dohvati_simbol_rel = &simkonst_simbol_rel
+  .dohvati_simbol_rel = &simkonst_simbol_rel,
+  .dohvati_referisanu_sekciju = &simbkonst_referisana_sekcija
 };
 
 Simbol* init_simbolicka_konstanta(const char* simbol, Izraz* izraz, Sekcija* sekcija) {

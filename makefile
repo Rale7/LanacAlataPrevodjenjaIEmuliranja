@@ -32,49 +32,64 @@ FLEX_FILE = misc/flex.l
 
 FLEX_FILES = $(TMP_OBJ)/lex.yy.o
 
-all: $(ASM_PROGRAM)
-
 # Create the executable for the assembler
 $(ASM_PROGRAM): $(ASM_OBJ)
 	$(CXX) -o $@ $^ $(CFLAGS)
 
 # Compile C source files to object files
 $(TMP_OBJ)/%_asm.o: $(ASM_DIR)/%.c
+	@mkdir -p $(@D)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 # Compile C++ source files to object files
 $(TMP_OBJ)/%_asm.o: $(ASM_DIR)/%.cpp
+	@mkdir -p $(@D)
 	$(CXX) -c -o $@ $< $(CFLAGS)
 
 $(TMP_OBJ)/%_asm.o: $(BISON_FOLDER)/%.y
+	@mkdir -p $(@D)
+	@mkdir -p $(TMP_BISON)
 	bison -d -o $(TMP_BISON)/bison.c $<
 	$(CC) -c -o $@ $(TMP_BISON)/bison.c $(CFLAGS)
 
 $(TMP_OBJ)/%_asm.o: $(BISON_FOLDER)/%.l
+	@mkdir -p $(@D)
+	@mkdir -p $(TMP_BISON)
 	flex -o $(TMP_BISON)/flex.c $<
 	$(CC) -c -o $@ $(TMP_BISON)/flex.c $(CFLAGS)
 
 # Create dependency files for C source files
 $(TMP_DEP)/%_asm.d: $(ASM_DIR)/%.c
+	@mkdir -p $(@D)
 	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
 
 # Create dependency files for C++ source files
 $(TMP_DEP)/%_asm.d: $(ASM_DIR)/%.cpp
+	@mkdir -p $(@D)
 	$(CXX) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
 
 $(TMP_DEP)/%_asm.d: $(TMP_BISON)/%.c
+	@mkdir -p $(@D)
 	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
+
+$(TMP_OBJ): $(TMP)
+	mkdir $(TMP_OBJ)
+
+$(TMP_DEP): $(TMP)
+	mkdir $(TMP_DEP)
+
+$(TMP_BISON): $(TMP)
+	mkdir $(TMP_BISON)
+
+$(TMP):
+	mkdir $(TMP)
 
 # Include dependency files
 -include $(ASM_DEP)
 
 # Clean rule
 clean:
-	rm -f $(TMP_OBJ)/*.o
-	rm -f $(TMP_DEP)/*.d
-	rm -f $(TMP_BISON)/*.c
-	rm -f $(TMP_BISON)/*.h
-	rm -f $(ASM_PROGRAM)
+	rm -r $(TMP)
 	rm -f *~
 
 .PHONY: clean

@@ -37,7 +37,8 @@ static Tip_TVF sekcija_tvf = {
   .dohvati_dodavanje = &sekcija_addend_rz,
   .dohvati_bind = &sekcija_dohvati_bind,
   .dohvati_tip = &sekcija_dohvati_tip,
-  .dohvati_simbol_rel = &sekcija_simbol_rel
+  .dohvati_simbol_rel = &sekcija_simbol_rel,
+  .dohvati_referisanu_sekciju = &definisana_referisana_sekcija
 };
 
 Sekcija* init_sekcija(const char* ime, Simbol* simbol) {

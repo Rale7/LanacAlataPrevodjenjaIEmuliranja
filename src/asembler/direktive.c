@@ -174,12 +174,12 @@ void end_dir() {
 
   Asembler* asembler = dohvati_asembler();
 
+  razresi_TNS(dohvati_asembler()->tabela_neizrazunljivih_simbola);
+
   if (asembler->trenutna_sekcija != NULL) {
     upisi_bazen(asembler->trenutna_sekcija->bazen_literala, 1);
     obrisi_bazen(asembler->trenutna_sekcija->bazen_literala);
   }
-
-  razresi_TNS(dohvati_asembler()->tabela_neizrazunljivih_simbola);
 
   ispisi_simbole();
 

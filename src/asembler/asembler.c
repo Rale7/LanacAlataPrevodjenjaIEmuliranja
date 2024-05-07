@@ -73,6 +73,7 @@ void obrisi_asembler(Asembler* asembler) {
     free(stari);
   }
 
+  obrisi_bazen(asembler->undefined->bazen_literala);
   obrisi_sekciju(asembler->undefined);
 
   obrisi_TNS(asembler->tabela_neizrazunljivih_simbola);

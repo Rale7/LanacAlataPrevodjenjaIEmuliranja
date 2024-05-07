@@ -41,8 +41,6 @@ static void nedefinisan_load_reg(Simbol* simbol, enum Registar r1, enum Registar
   ObracanjeInstrukcije* novo_obracanje = init_obracanje_instrukcija(sekcija, sekcija->location_counter);
   novo_obracanje->sledeci = simbol->oilista;
   simbol->oilista = novo_obracanje;
-
-  printf("Greska simbol %s je relokativan", simbol->naziv);
 }
 
 static void nedefinisan_st_reg(Simbol* simbol, enum Registar r1, enum Registar r2, Sekcija* sekcija) {
@@ -50,8 +48,6 @@ static void nedefinisan_st_reg(Simbol* simbol, enum Registar r1, enum Registar r
   ObracanjeInstrukcije* novo_obracanje = init_obracanje_instrukcija(sekcija, sekcija->location_counter);
   novo_obracanje->sledeci = simbol->oilista;
   simbol->oilista = novo_obracanje;
-
-  printf("Greska simbol %s je relokativan", simbol->naziv); 
 }
 
 static void nedefinisan_st_mem(Simbol* simbol, enum Registar r1, Sekcija* sekcija) {
@@ -113,7 +109,7 @@ static enum Relokatibilnost nedefinisana_relokatibilnost(Simbol* simbol, Sekcija
   return NEIZRACUNJIV;
 }
 
-static Simbol_TVF nedefinisan_simbol_tvf = { 
+Simbol_TVF nedefinisan_simbol_tvf = { 
   .skok = &nedefinisan_skok,
   .imm = &nedefinisan_load_imm,
   .ld_mem = &nedefinisan_load_mem,
@@ -123,7 +119,6 @@ static Simbol_TVF nedefinisan_simbol_tvf = {
   .nrz = &nedefinisan_nrz,
   .sdw = &nedefinisan_sdw,
   .dohvati_relokatibilnost = &nedefinisana_relokatibilnost,
-  .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
 Simbol* init_nedefinisan_simbol(const char* naziv) {

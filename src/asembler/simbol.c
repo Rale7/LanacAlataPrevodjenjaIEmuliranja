@@ -50,7 +50,8 @@ static Tip_TVF lokalni_tvf = {
   .dohvati_dodavanje = &lokalni_addend_rz,
   .dohvati_bind = &lokalni_tip,
   .dohvati_tip = &dohvati_tip_nedefinisan,
-  .dohvati_simbol_rel = &lokalni_simbol_rel
+  .dohvati_simbol_rel = &lokalni_simbol_rel,
+  .dohvati_referisanu_sekciju = &definisana_referisana_sekcija
 };
 
 Simbol* dohvati_prvi_simbol() {
@@ -92,6 +93,10 @@ char dohvati_tip_nedefinisan(Simbol* simbol) {
   return STT_NOTYPE;
 }
 
+int definisana_referisana_sekcija(Simbol* simbol) {
+  return simbol->sekcija->broj_elf_ulaza;
+}
+
 void ispisi_simbole() {
 
   printf("Tabela simbola\n");
@@ -108,11 +113,6 @@ void ugradi_pomeraj_simbol(Sekcija* sekcija, int obracanje, int pomeraj) {
   
   char pom = (char) (pomeraj & 0xFF);
   postavi_sadrzaj(sekcija->sadrzaj, obracanje + 3, &pom, 1);
-}
-
-int definisan_neizracunjivi_indeks(Simbol* simbol) {
-  
-  return -1;
 }
 
 void obrisi_simbol(Simbol* simbol) {

@@ -139,7 +139,6 @@ static Simbol_TVF definisan_simbol_tvf = {
   .nrz = &definisan_nrz,
   .sdw = &definisan_sdw,
   .dohvati_relokatibilnost = &definisana_relokatibilnost,
-  .neizracunjivi_indeks = &definisan_neizracunjivi_indeks
 };
 
 Simbol *init_definisan_simbol(const char* naziv, int vrednost, Sekcija *sekcija) {
@@ -152,7 +151,7 @@ Simbol *init_definisan_simbol(const char* naziv, int vrednost, Sekcija *sekcija)
 
 void prebaci_u_definisan(Simbol* simbol, Sekcija* sekcija, int vrednost) {
 
-  if (simbol->tvf == &definisan_simbol_tvf) {
+  if (simbol->tvf == &definisan_simbol_tvf && simbol->neizracunjivi == NULL) {
     printf("Visestruka definicija simbola %s\n", simbol->naziv);
     exit(1);
   }
@@ -160,6 +159,7 @@ void prebaci_u_definisan(Simbol* simbol, Sekcija* sekcija, int vrednost) {
   simbol->vrednost = vrednost;
   simbol->sekcija = sekcija;
   simbol->tvf = &definisan_simbol_tvf;
+  simbol->neizracunjivi = NULL;
 
   while (simbol->oulista) {
     ObracanjeUnapred* stari = simbol->oulista;

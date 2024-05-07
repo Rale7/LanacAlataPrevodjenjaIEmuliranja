@@ -27,15 +27,17 @@ static SekcijaRel* dodaj_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
       printf("Izraz nije pravilan\n");
       exit(1);
     }
-    if ((*indirect)->sekcija->simbol->redosled == sekcija->simbol->redosled) {
-      (*indirect)->broj_pojavljivanja++;
-      return prvi;
-    }
+    if ((*indirect)->sekcija->simbol->redosled != sekcija->simbol->redosled) continue;
+    
+    (*indirect)->broj_pojavljivanja++;
+    
     if ((*indirect)->broj_pojavljivanja == 0) {
-      SekcijaRel* stari;
+      SekcijaRel* stari = *indirect;
       (*indirect) = (*indirect)->sledeci;
       free(stari);
     }
+
+    return prvi;
   }
 
   (*indirect) = init_sekcija_rel(1, sekcija);
@@ -51,15 +53,17 @@ static SekcijaRel* skloni_pojavljivanje(SekcijaRel* prvi, Sekcija* sekcija) {
       printf("Izraz nije pravilan\n");
       exit(1);
     }
-    if ((*indirect)->sekcija->simbol->redosled == sekcija->simbol->redosled) {
-      (*indirect)->broj_pojavljivanja--;
-      return prvi;
-    }
+    if ((*indirect)->sekcija->simbol->redosled != sekcija->simbol->redosled) continue;
+    
+    (*indirect)->broj_pojavljivanja--;
+    
     if ((*indirect)->broj_pojavljivanja == 0) {
-      SekcijaRel* stari;
+      SekcijaRel* stari = *indirect;
       (*indirect) = (*indirect)->sledeci;
       free(stari);
     }
+
+    return prvi;
   }
 
   (*indirect) = init_sekcija_rel(-1, sekcija);
@@ -331,7 +335,7 @@ int izracunaj_vrednost_izraza(Izraz* izraz) {
 
       ClanIzraza* novi = trenutni->deo.operator->operacija(op2, op1);
       vrh = push_stek(vrh, novi);
-      dodaj_clan(izraz, novi);
+      dodaj_clan(tmp_izraz, novi);
       
     } else {
       vrh = push_stek(vrh, trenutni);

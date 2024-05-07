@@ -147,7 +147,7 @@ void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
       .st_name = dodaj_string(strtab, simbol->naziv),
       .st_info = ELF32_ST_INFO(simbol->tip_tvf->dohvati_bind(simbol), simbol->tip_tvf->dohvati_tip(simbol)),
       .st_other = STV_DEFAULT,
-      .st_shndx = simbol->sekcija->broj_elf_ulaza,
+      .st_shndx = simbol->tip_tvf->dohvati_referisanu_sekciju(simbol),
       .st_value = simbol->vrednost,
       .st_size = 0,
     };

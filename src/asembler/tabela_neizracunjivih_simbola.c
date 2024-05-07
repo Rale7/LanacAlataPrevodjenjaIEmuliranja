@@ -157,8 +157,8 @@ void razresi_TNS(TNS* tns) {
       for (ClanIzraza* clan = tekuci->simbol->izraz->prvi; clan; clan = clan->sledeci) {
 
         int indeks;
-        if (clan->klasifikator == SIMBOL 
-        && (indeks = clan->deo.simbol->tvf->neizracunjivi_indeks(clan->deo.simbol)) != -1) {
+        if (clan->klasifikator == SIMBOL && clan->deo.simbol->neizracunjivi) {
+          indeks = clan->deo.simbol->neizracunjivi->neizracunjivi_id;
 
           NeizracunjiviElem* ne = init_NE(tekuci->simbol);
           ne->sledeci = graf[indeks];

@@ -31,7 +31,6 @@ typedef struct {
   NapraviRelokacioniZapis nrz;
   SimbolDirWord sdw;
   DohvatiRelokatibilnost dohvati_relokatibilnost;
-  NeizracunjiviIndeks neizracunjivi_indeks;
 } Simbol_TVF;
 
 typedef void (*IspisiSimbol) (struct simbol*);
@@ -40,6 +39,7 @@ typedef int (*DohvatiDodavanje) (struct simbol*);
 typedef char (*DohvatiBind) (struct simbol*);
 typedef char (*DohvatiTip) (struct simbol*);
 typedef int (*DohvatiSimbolRel) (struct simbol*);
+typedef int (*DohvatiReferisanuSekciju) (struct simbol*);
 
 typedef struct {
   IspisiSimbol ispis_simbola;
@@ -48,6 +48,7 @@ typedef struct {
   DohvatiTip dohvati_tip;
   DohvatiBind dohvati_bind;
   DohvatiSimbolRel dohvati_simbol_rel;
+  DohvatiReferisanuSekciju dohvati_referisanu_sekciju;
 } Tip_TVF;
 
 typedef struct obracanje_unapred {
@@ -110,7 +111,7 @@ char dohvati_tip_nedefinisan(Simbol* simbol);
 
 void razresavanje_neizracunjivog_simbola_konstanta(Simbol*);
 
-int definisan_neizracunjivi_indeks(Simbol*);
+int definisana_referisana_sekcija(Simbol*);
 
 void prebaci_u_simbolicku_konstantu(Simbol*, int vrednost);
 

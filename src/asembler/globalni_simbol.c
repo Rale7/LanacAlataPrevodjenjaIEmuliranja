@@ -33,6 +33,7 @@ static Tip_TVF globalni_tvf = {
   .dohvati_bind = &globalni_tip,
   .dohvati_tip = &dohvati_tip_nedefinisan,
   .dohvati_simbol_rel = &globalni_simbol_rel,
+  .dohvati_referisanu_sekciju = &definisana_referisana_sekcija
 };
 
 void prebaci_u_globalni(Simbol* simbol) {
