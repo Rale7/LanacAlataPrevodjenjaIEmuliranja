@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include "../../inc/asembler/neizracunjivi_simbol.h"
 #include "../../inc/asembler/sadrzaj_sekcije.h"
 #include "../../inc/asembler/sekcija.h"

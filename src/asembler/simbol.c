@@ -81,6 +81,7 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
   novi->oulista = NULL;
   novi->oilista = NULL;
   novi->neizracunjivi = NULL;
+  novi->tip = STB_LOCAL;
 
   uvezi_simbol(novi);
 

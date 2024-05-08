@@ -62,18 +62,18 @@ void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
   }
 
   zagljavlja[broj_zaglavlja++] = (Elf32_Shdr) {
-      .sh_name = dodaj_string(shstr, asembler->undefined->simbol->naziv),
-      .sh_type = SHT_NULL,
-      .sh_flags = 0,
-      .sh_addr = 0,
-      .sh_offset = 0,
-      .sh_size = 0,
-      .sh_link = SHN_UNDEF,
-      .sh_info = 0,
-      .sh_addralign = 0,
-      .sh_entsize = 0
-    };
-    asembler->undefined->broj_elf_ulaza = 0;
+    .sh_name = dodaj_string(shstr, asembler->undefined->simbol->naziv),
+    .sh_type = SHT_NULL,
+    .sh_flags = 0,
+    .sh_addr = 0,
+    .sh_offset = 0,
+    .sh_size = 0,
+    .sh_link = SHN_UNDEF,
+    .sh_info = 0,
+    .sh_addralign = 0,
+    .sh_entsize = 0
+  };
+  asembler->undefined->broj_elf_ulaza = 0;
 
 
   for (SekcijaElem* sekcija_elem = asembler->sekcije; sekcija_elem; sekcija_elem = sekcija_elem->sledeci) {
@@ -138,14 +138,14 @@ void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
 
   for (Simbol* simbol = dohvati_prvi_simbol(); simbol; simbol = simbol->sledeci) {
     
-    if (simbol->tip_tvf->dohvati_bind(simbol) == STB_LOCAL) {
+    if (simbol->tip == STB_LOCAL) {
       poslednji_lokalni_simbol = broj_simbola;
     }
     broj_simbola++;
 
     Elf32_Sym novi_simbol = {
       .st_name = dodaj_string(strtab, simbol->naziv),
-      .st_info = ELF32_ST_INFO(simbol->tip_tvf->dohvati_bind(simbol), simbol->tip_tvf->dohvati_tip(simbol)),
+      .st_info = ELF32_ST_INFO(simbol->tip, simbol->tip_tvf->dohvati_tip(simbol)),
       .st_other = STV_DEFAULT,
       .st_shndx = simbol->tip_tvf->dohvati_referisanu_sekciju(simbol),
       .st_value = simbol->vrednost,

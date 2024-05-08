@@ -93,6 +93,14 @@ static int simkonst_addend_rz(Simbol* simbol) {
   return simbol->vrednost;
 }
 
+static char simbolicki_tip(Simbol* simbol) {
+  if (simbol->tip == STB_GLOBAL) {
+    return STB_GLOBAL;
+  } else {
+    return STB_LOCAL;
+  }
+}
+
 static int simbkonst_referisana_sekcija(Simbol* simbol) {
   return SHN_ABS;
 }
@@ -105,7 +113,7 @@ static Tip_TVF simbolicki_tip_TVF = {
   .ispis_simbola = &lokalni_ispis,
   .ispis_relokacionog_zapisa = &simkonst_ispis_rz,
   .dohvati_dodavanje = &simkonst_addend_rz,
-  .dohvati_bind = &lokalni_tip,
+  .dohvati_bind = &simbolicki_tip,
   .dohvati_tip = &dohvati_tip_nedefinisan,
   .dohvati_simbol_rel = &simkonst_simbol_rel,
   .dohvati_referisanu_sekciju = &simbkonst_referisana_sekcija
@@ -152,7 +160,7 @@ void razresavanje_neizracunjivog_simbola_konstanta(Simbol* simbol) {
     postavi_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija, &oc, sizeof(oc));
 
     char reg_reg = *dohvati_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 1);
-    reg_reg = (char)( (oc & 0xF0 == 0x90) ? (reg_reg & 0x0F) | (R0 << 4) : (reg_reg & 0xF0) | (R0));
+    reg_reg = (char)( (((oc & 0xF0) == 0x90) || ((oc & 0xF0) == 0x80)) ? (reg_reg & 0x0F) | (R0 << 4) : (reg_reg & 0xF0) | (R0));
     postavi_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 1, &reg_reg, 1);
 
     char reg_pom = *dohvati_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 2);

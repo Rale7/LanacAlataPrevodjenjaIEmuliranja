@@ -37,5 +37,11 @@ static Tip_TVF globalni_tvf = {
 };
 
 void prebaci_u_globalni(Simbol* simbol) {
+  if (simbol->sekcija &&  simbol->tip_tvf->dohvati_referisanu_sekciju(simbol) == SHN_ABS) {
+    simbol->tip = STB_GLOBAL;
+    return;
+  }
+
   simbol->tip_tvf = &globalni_tvf;
+  simbol->tip = STB_GLOBAL;
 }

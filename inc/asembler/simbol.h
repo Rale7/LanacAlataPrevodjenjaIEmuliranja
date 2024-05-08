@@ -74,6 +74,7 @@ typedef struct simbol {
   Tip_TVF* tip_tvf;
   struct neizracunjivi_simbol* neizracunjivi;
   ObracanjeInstrukcije* oilista;
+  char tip;
 } Simbol;
 
 typedef struct elem {
