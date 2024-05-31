@@ -11,6 +11,7 @@ typedef struct sekcija{
   int velicina;
   int kapacitet;
   int virtuelna_adresa;
+  int broj_elf_ulaza;
   char* sadrzaj;
   struct relokacioni_zapis* prvi;
   struct relokacioni_zapis** indirect;

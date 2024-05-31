@@ -56,6 +56,7 @@ Sekcija* init_sekcija(TabelaSimbola* tabela_simbola, const char* naziv) {
   sekcija->prvi = NULL;
   sekcija->indirect = &sekcija->prvi;
   sekcija->virtuelna_adresa = 0;
+  sekcija->broj_elf_ulaza = 0;
   
   sekcija->simbol.naziv = (char*) calloc(strlen(naziv) + 1, sizeof(char));
   strcpy(sekcija->simbol.naziv, naziv);

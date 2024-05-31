@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "../../inc/linker/linker.h"
+#include "../../inc/linker/parsiranje_cmd.h"
 
 extern int optind;
 
@@ -10,28 +11,16 @@ int main(int argc, char* argv[]) {
   Linker* linker = init_linker();
   const char* ime_izlazne_datoteke;
 
-  int opt;
+  enum TipLinkovanja tip = parsiraj(linker, argc, argv, &ime_izlazne_datoteke);
 
-  while ((opt = getopt(argc, argv, "o:")) != -1) {
-    
-    switch (opt)
-    {
-    case 'o':
-      ime_izlazne_datoteke = optarg;
-      break;          
-    default:
-      printf("Nepoznata opcija\n");
-      exit(1);
-    }
+  if (tip == NEPOZNATO) {
+    printf("Nije naveden tip linkovanja\n");
+    exit(1);
+  } else if (tip == IZVRSNI) {
+    napravi_izvrsni_fajl(linker, ime_izlazne_datoteke);
+  } else if (tip == RELOKATIVNI) {
+    napravi_relokativni_fajl(linker, ime_izlazne_datoteke);
   }
-
-  for (int i = optind; i < argc; i++) {
-    procesiraj_ulazni_fajl(linker, argv[i]);
-  }
-
-  napravi_izvrsni_fajl(linker, ime_izlazne_datoteke);
-
-  ispisi_strukture(linker);
 
   return 0;
 }

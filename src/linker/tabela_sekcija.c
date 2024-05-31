@@ -110,11 +110,11 @@ void heapify(Sekcija** sekcije, int n, int i) {
   int l = 2 * i + 1;
   int d = 2 * i + 2;
 
-  if (l < n && sekcije[i]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
+  if (l < n && sekcije[l]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
     najveci = l;
   }
 
-  if (d < n && sekcije[i]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
+  if (d < n && sekcije[d]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
     najveci = d;
   }
 
