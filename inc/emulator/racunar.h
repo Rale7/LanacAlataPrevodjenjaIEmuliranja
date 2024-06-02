@@ -1,0 +1,14 @@
+#ifndef RACUNAR_H
+#define RACUNAR_H
+
+#include "procesor.h"
+#include "memorija.h"
+
+typedef struct racunar {
+  Procesor* procesor;
+  Memorija* memorija;
+} Racunar;
+
+Racunar* init_racunar();
+
+#endif

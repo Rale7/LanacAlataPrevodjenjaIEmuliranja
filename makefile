@@ -104,13 +104,45 @@ $(TMP_OBJ)/%_ld.o: $(LD_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) -c -o $@ $< $(CFLAGS)
 
-$(TMP_DEP)/%_ld.d: $(ASM_DIR)/%.c
+$(TMP_DEP)/%_ld.d: $(LD_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@
 
-$(TMP_DEP)/%_ld.d: $(ASM_DIR)/%.cpp
+$(TMP_DEP)/%_ld.d: $(LD_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@
+
+#Emulator
+EM_PROGRAM = emulator
+
+EM_DIR=./src/emulator
+EM_SRC_C = $(wildcard $(EM_DIR)/*.c)
+EM_SRC_CPP = $(wildcard $(EM_DIR)/*.cpp) 
+
+EM_OBJ =	$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%_em.o, $(EM_SRC_C)) \
+					$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%.em_o, $(EM_SRC_CPP))
+
+EM_DEP =	$(patsubst $(EM_DIR)/%.c, $(TMP_DEP)/%_em.d, $(EM_SRC_C)) \
+					$(patsubst $(EM_DIR)/%.cpp, $(TMP_DEP)/%_em.d, $(EM_SRC_CPP))
+
+$(EM_PROGRAM): $(EM_OBJ)
+	$(CXX) -o $@ $^ $(CFLAGS)
+
+$(TMP_OBJ)/%_em.o: $(EM_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(TMP_OBJ)/%_em.o: $(EM_DIR)/%.cpp
+	@mkdir -p $($D)
+	$(CXX) -c -o $@ $< $(CFLAGS)
+
+$(TMP_DEP)/%_em.d: $(EM_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) -MM -MT $(TMP_OBJ)/%*_em.o $< > $@
+
+$(TMP_DEP)/%_ld.d: $(EM_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CC) -MM -MT $(TMP_OBJ)/$*_em.o $< > $@
 
 # Ukljuci dependency fajlove
 ifeq ($(MAKECMDGOALS), asembler)
