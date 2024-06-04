@@ -9,7 +9,7 @@ enum Registar {
 };
 
 enum CsrRegistar {
-  STATUS, HANDLER, CAUSE
+  HANDLER, STATUS, CAUSE
 };
 
 void provera_prekoracenja_bazena_inst();

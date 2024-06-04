@@ -10,7 +10,7 @@ typedef struct sekcija{
   Simbol simbol;
   int velicina;
   int kapacitet;
-  int virtuelna_adresa;
+  unsigned int virtuelna_adresa;
   int broj_elf_ulaza;
   char* sadrzaj;
   struct relokacioni_zapis* prvi;

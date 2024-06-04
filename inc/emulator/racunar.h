@@ -9,6 +9,9 @@ typedef struct racunar {
   Memorija* memorija;
 } Racunar;
 
-Racunar* init_racunar();
+Racunar* init_racunar(const char*);
+
+void* rad_racunara(void*);
+
 
 #endif

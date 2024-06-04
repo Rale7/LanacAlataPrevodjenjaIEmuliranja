@@ -15,10 +15,10 @@ typedef struct segment {
   unsigned int pocetna_adresa;
   unsigned int krajnja_adresa;
   int visina;
-  int* sadrzaj;
+  char* sadrzaj;
   struct segment* levi;
   struct segment* desni;
-  SegmentTVF tvf;
+  SegmentTVF *tvf;
 } Segment;
 
 
@@ -26,12 +26,18 @@ typedef struct memorija {
   Segment* koren;
 } Memorija;
 
-Segment* init_segment(int pocetna_adresa, int krajnja_adresa);
+Segment* init_segment(unsigned int pocetna_adresa, unsigned int krajnja_adresa);
+
+Segment* init_segment_sadrzaj(unsigned int, unsigned int, char*);
+
+Memorija* init_memorija();
 
 void ubaci_segment(Memorija*, Segment*);
 
 int dohvati_vrednost(Memorija*, unsigned int adresa);
 
 void postavi_vrednost(Memorija*, unsigned int adresa, int vrednost);
+
+void inorder_memorija(Segment* segment);
 
 #endif

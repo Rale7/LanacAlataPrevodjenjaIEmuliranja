@@ -1,7 +1,7 @@
 # komende za prevodjenje
 CC = gcc
 CXX = g++
-CFLAGS = -g
+CFLAGS = -g -pthread
 
 # Tmp folder
 TMP = ./tmp
@@ -154,7 +154,7 @@ endif
 
 # Napravi sve fajlove
 
-all: $(ASM_PROGRAM) $(LD_PROGRAM)
+all: $(ASM_PROGRAM) $(LD_PROGRAM) $(EM_PROGRAM)
 
 # Brisanje
 clean:

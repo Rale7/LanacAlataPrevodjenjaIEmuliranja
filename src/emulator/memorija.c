@@ -6,14 +6,16 @@
 
 int dohvati_vrednost_memorija(Segment* segment, unsigned int adresa) {
 
-  return segment->sadrzaj[adresa - segment->pocetna_adresa];
+  int* adresa_sadrzaja = (int*)(segment->sadrzaj + adresa - segment->pocetna_adresa);
+
+  return *adresa_sadrzaja;
 }
 
 void postavi_vrednost_memorija(Segment* segment, unsigned int adresa, int vrednost) {
-  segment->sadrzaj[adresa - segment->pocetna_adresa] = vrednost;
+  *((int*)(segment->sadrzaj + adresa - segment->pocetna_adresa)) = vrednost;
 }
 
-Segment* init_segment(int pocetna_adresa, int krajnja_adresa) {
+Segment* init_segment_sadrzaj(unsigned int pocetna_adresa, unsigned int krajnja_adresa, char* sadrzaj) {
   static SegmentTVF memorija_tvf = {
     .dohvati_vrednost = &dohvati_vrednost_memorija,
     .postavi_vrednost = &postavi_vrednost_memorija
@@ -21,7 +23,7 @@ Segment* init_segment(int pocetna_adresa, int krajnja_adresa) {
 
   Segment* novi = (Segment*) malloc(sizeof(Segment));
   if (novi == NULL) {
-    print("Greska pri alokaciji memorie\n");
+    perror("Greska pri alokaciji memorie\n");
     exit(1);
   }
 
@@ -30,14 +32,35 @@ Segment* init_segment(int pocetna_adresa, int krajnja_adresa) {
   novi->pocetna_adresa = pocetna_adresa;
   novi->krajnja_adresa = krajnja_adresa;
   novi->visina = 1;
-  novi->tvf = memorija_tvf;
-  novi->sadrzaj = (int*) calloc(krajnja_adresa - pocetna_adresa, sizeof(int));
-  if (novi->sadrzaj == NULL) {
-    printf("Greska u alokaciji memroije\n");
+  novi->tvf = &memorija_tvf;
+  novi->sadrzaj = sadrzaj;
+
+  return novi; 
+}
+
+Segment* init_segment(unsigned int pocetna_adresa, unsigned int krajnja_adresa) {
+
+
+  char* sadrzaj = (char*) calloc(krajnja_adresa - pocetna_adresa, sizeof(char));
+  if (sadrzaj == NULL) {
+    printf("Greska u alokaciji memorije\n");
     exit(1);
   }
 
-  return novi;
+  return init_segment_sadrzaj(pocetna_adresa, krajnja_adresa, sadrzaj);
+}
+
+Memorija* init_memorija() {
+
+  Memorija* nova = (Memorija*) malloc(sizeof(Memorija));
+  if (nova == NULL) {
+    perror("Greska u alokaciji\n");
+    exit(1);
+  }
+
+  nova->koren = NULL;
+
+  return nova;
 }
 
 static inline int max(int a, int b) {
@@ -87,18 +110,13 @@ static Segment* desna_rotacija(Segment* y) {
   return x;
 }
 
-static int uporedi(Segment* prvi, Segment* drugi) {
-
-  return prvi->pocetna_adresa - drugi->pocetna_adresa;
-}
-
 static Segment* ubaci(Segment* cvor, Segment* novi) {
 
   if (cvor == NULL) {
     return novi;
   }
 
-  if (uporedi(cvor, novi) < 0) {
+  if (novi->pocetna_adresa < cvor->pocetna_adresa) {
     cvor->levi = ubaci(cvor->levi, novi);
   } else {
     cvor->desni = ubaci(cvor->desni, novi);
@@ -108,20 +126,20 @@ static Segment* ubaci(Segment* cvor, Segment* novi) {
 
   int balans = dohvati_balans(cvor);
 
-  if (balans > 1 && uporedi(cvor, novi) < 0) {
+  if (balans > 1 && novi->pocetna_adresa < cvor->pocetna_adresa) {
     return desna_rotacija(cvor);
   }
 
-  if (balans < -1 && uporedi(cvor, novi) > 0) {
+  if (balans < -1 && novi->pocetna_adresa < cvor->pocetna_adresa) {
     return leva_rotacija(cvor);
   }
 
-  if (balans > 1 && uporedi(cvor, novi) > 0) {
+  if (balans > 1 && novi->pocetna_adresa < cvor->pocetna_adresa) {
     cvor->levi = leva_rotacija(cvor->levi);
     return desna_rotacija(cvor);
   }
 
-  if (balans < -1 && uporedi(cvor, novi) < 0) {
+  if (balans < -1 && novi->pocetna_adresa < cvor->pocetna_adresa) {
     cvor->desni = desna_rotacija(cvor->desni);
     return leva_rotacija(cvor);
   }
@@ -130,7 +148,7 @@ static Segment* ubaci(Segment* cvor, Segment* novi) {
 }
 
 void ubaci_segment(Memorija* memorija, Segment* novi_segment) {
-  memorija->koren = ubaci(memorija->koren, novi_segment); 
+  memorija->koren = ubaci(memorija->koren, novi_segment);
 }
 
 static Segment* pretrazi(Memorija* memorija, unsigned int adresa) {
@@ -141,9 +159,9 @@ static Segment* pretrazi(Memorija* memorija, unsigned int adresa) {
 
   while (tekuci) {
     
-    if (tekuci->pocetna_adresa < adresa && adresa < tekuci->krajnja_adresa) {
+    if (tekuci->pocetna_adresa <= adresa && adresa <= tekuci->krajnja_adresa) {
       return tekuci;
-    } else if (tekuci->pocetna_adresa < adresa) {
+    } else if (tekuci->pocetna_adresa > adresa) {
       sledbenik = tekuci;
       tekuci = tekuci->levi;
     } else {
@@ -152,36 +170,37 @@ static Segment* pretrazi(Memorija* memorija, unsigned int adresa) {
     }
   }
 
+  Segment* novi = NULL;
   if (prethodnik && sledbenik) {
-
     if (sledbenik->pocetna_adresa - prethodnik->krajnja_adresa < DEFAULT_SEGMENT_SIZE) {
-      ubaci_segment(memorija, init_segment(prethodnik->krajnja_adresa + 1, sledbenik->pocetna_adresa - 1));
+      ubaci_segment(memorija, (novi = init_segment(prethodnik->krajnja_adresa + 1, sledbenik->pocetna_adresa - 1)));
     } else {
-      ubaci(memorija, init_segment(
-        max(prethodnik->krajnja_adresa - 1, adresa - DEFAULT_SEGMENT_SIZE / 2),
+      ubaci_segment(memorija, (
+        novi = init_segment(
+        max(prethodnik->krajnja_adresa + 1, adresa - DEFAULT_SEGMENT_SIZE / 2),
         min(sledbenik->pocetna_adresa - 1, adresa + DEFAULT_SEGMENT_SIZE / 2)  
-      ));
+      )));
     }
   } else if (sledbenik) {
     if (sledbenik->pocetna_adresa < DEFAULT_SEGMENT_SIZE) {
-      ubaci_segment(memorija, init_segment(0, sledbenik->pocetna_adresa - 1));
+      ubaci_segment(memorija, (novi = init_segment(0, sledbenik->pocetna_adresa - 1)));
     } else {
-      ubaci(memorija, init_segment(
+      ubaci_segment(memorija, novi = init_segment(
         max(0, adresa - DEFAULT_SEGMENT_SIZE / 2),
         min(sledbenik->pocetna_adresa - 1, adresa + DEFAULT_SEGMENT_SIZE / 2)
       ));
     }
   } else if (prethodnik) {
-    if (0xFFFFFFFFU - prethodnik->pocetna_adresa < DEFAULT_SEGMENT_SIZE) {
-      ubaci_segment(memorija, init_segment(prethodnik->pocetna_adresa + 1, 0xFFFFFFFFU));
+    if (0xFFFFFEFFU - prethodnik->pocetna_adresa < DEFAULT_SEGMENT_SIZE) {
+      ubaci_segment(memorija, (novi = init_segment(prethodnik->pocetna_adresa + 1, 0xFFFFFEFFU)));
     } else {
-      ubaci(memorija, init_segment(
-        min(prethodnik->krajnja_adresa + 1, adresa + DEFAULT_SEGMENT_SIZE / 2),
-        max(0xFFFFFFFFU,adresa + DEFAULT_SEGMENT_SIZE / 2) 
+      ubaci_segment(memorija, novi = init_segment(
+        max(prethodnik->krajnja_adresa + 1, adresa + DEFAULT_SEGMENT_SIZE / 2),
+        min(0xFFFFFEFFU,adresa + DEFAULT_SEGMENT_SIZE / 2) 
       ));
     }
   } else {
-    ubaci(memorija, init_segment(adresa - DEFAULT_SEGMENT_SIZE / 2, adresa + DEFAULT_SEGMENT_SIZE / 2));
+    ubaci_segment(memorija, novi = init_segment(adresa - DEFAULT_SEGMENT_SIZE / 2, adresa + DEFAULT_SEGMENT_SIZE / 2));
   }
 
   return pretrazi(memorija, adresa);
@@ -191,12 +210,20 @@ static Segment* pretrazi(Memorija* memorija, unsigned int adresa) {
 int dohvati_vrednost(Memorija* memorija, unsigned int adresa) {
 
   Segment* trazeni = pretrazi(memorija, adresa);
-  return trazeni->tvf.dohvati_vrednost(trazeni, adresa);
+  return trazeni->tvf->dohvati_vrednost(trazeni, adresa);
 }
 
 void postavi_vrednost(Memorija* memorija, unsigned int adresa, int vrednost) {
 
   Segment* trazeni = pretrazi(memorija, adresa);
-  trazeni->tvf.postavi_vrednost(memorija, adresa, vrednost);
+  trazeni->tvf->postavi_vrednost(trazeni, adresa, vrednost);
+}
+
+void inorder_memorija(Segment* segment) {
+  if (segment != NULL) {
+    inorder_memorija(segment->levi);
+    printf("Segment pocetna-%x, kranja-%x\n", segment->pocetna_adresa, segment->krajnja_adresa);
+    inorder_memorija(segment->desni);
+  }
 }
 
