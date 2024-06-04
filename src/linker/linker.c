@@ -3,6 +3,7 @@
 #include <elf.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "../../inc/linker/linker.h"
 #include "../../inc/linker/tabela_sekcija.h"
 #include "../../inc/linker/simbol.h"
@@ -258,6 +259,85 @@ void razresi_virtuelne_adrese(Linker* linker) {
   }
 
 }
+char* int_to_string(int broj) {
+  char* string = (char*) malloc(sizeof(char) * 5);
+
+  sprintf(string, "%d", broj);
+
+  return string;
+}
+
+void readelf_program(const char* txt_fajl, const char*ulazni_fajl, Elf32_Shdr* zaglavlja, int broj_zaglavlja) {
+
+  int broj_sekcija = 0;
+
+  for (int i = 0; i < broj_zaglavlja; i++) {
+    if (zaglavlja[i].sh_type == SHT_PROGBITS) {
+      broj_sekcija++;
+    }
+  }
+
+  char** argv = (char**) malloc(sizeof(char*) * (4 + 2 * broj_sekcija));
+
+  argv[0] = "readelf";
+  argv[1] = (char*) ulazni_fajl;
+  argv[2] = "-hSsr";
+
+  int index = 3;
+  for (int i = 0; i < broj_zaglavlja; i++) {
+    if (zaglavlja[i].sh_type == SHT_PROGBITS) {
+      argv[index++] = "-x";
+      argv[index++] = int_to_string(i);
+    }
+  }
+
+  argv[index] = NULL;
+
+  int fd = open(txt_fajl, O_WRONLY | O_TRUNC | O_CREAT, 0664);
+  if (fd < 0) {
+    perror("Greska u otvaranju txt fajla\n");
+    exit(1);
+  }
+
+  close(STDOUT_FILENO);
+  dup(fd);
+  close(STDIN_FILENO);
+  
+  execvp(argv[0], argv);
+  perror("Greska u exec-u");
+  exit(1);
+}
+
+char* promeni_ektenziju_txt(const char* ulazni_fajl) {
+  char* pozicija_tacke = strchr(ulazni_fajl, '.');
+  int n = (pozicija_tacke ? (pozicija_tacke - ulazni_fajl) : strlen(ulazni_fajl) - 1);
+
+  char* txt_fajl = (char*) malloc(sizeof(char) * (n + 5));
+
+  strncpy(txt_fajl, ulazni_fajl, n);
+  txt_fajl[n] = '.';
+  txt_fajl[n + 1] = 't';
+  txt_fajl[n + 2] = 'x';
+  txt_fajl[n + 3] = 't';
+  txt_fajl[n + 4] = '\0';
+
+  return txt_fajl;
+}
+void napravi_txt_elf_file(const char* ulazni_fajl, Elf32_Shdr* zaglavlja, int broj_zaglavlja){
+  char* txt_fajl = promeni_ektenziju_txt(ulazni_fajl);
+ 
+  int pid = fork();
+
+  if (pid < 0) {
+    perror("Greska u fork-u\n");
+    exit(1);
+  } else if (pid == 0) {
+    readelf_program(txt_fajl, ulazni_fajl, zaglavlja, broj_zaglavlja);
+  }
+
+  free(txt_fajl);
+}
+
 
 void napravi_relokativni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
 
@@ -467,8 +547,25 @@ void napravi_relokativni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
   close(fd);
   obrisi_moju_string_sekciju(shstr);
   obrisi_moju_string_sekciju(strtab);
-  free(zagljavlja);
 
+  napravi_txt_elf_file(ime_izlaznog_fajla, zagljavlja, broj_zaglavlja);
+  free(zagljavlja);
+}
+
+char* promeni_ektenziju(const char* ulazni_fajl) {
+  char* pozicija_tacke = strchr(ulazni_fajl, '.');
+  int n = (pozicija_tacke ? (pozicija_tacke - ulazni_fajl) : strlen(ulazni_fajl));
+
+  char* hex_fajl = (char*) malloc(sizeof(char) * (n + 5));
+
+  strncpy(hex_fajl, ulazni_fajl, n);
+  hex_fajl[n] = '.';
+  hex_fajl[n + 1] = 'h';
+  hex_fajl[n + 2] = 'e';
+  hex_fajl[n + 3] = 'x';
+  hex_fajl[n + 4] = '\0';
+
+  return hex_fajl;
 }
 
 void napravi_izvrsni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
@@ -484,6 +581,7 @@ void napravi_izvrsni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
   }
 
   int fd = open(ime_izlaznog_fajla, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+  FILE* hex_izlaz = fopen(promeni_ektenziju(ime_izlaznog_fajla), "w");
 
   int broj_segmenata = linker->tabela_sekcija->broj_sekcija;
 
@@ -526,7 +624,7 @@ void napravi_izvrsni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
       .p_memsz = trenutna_sekcija->velicina,
       .p_align = 0x04
     };
-    ispisi_sadrzaj(trenutna_sekcija);
+    ispisi_sadrzaj(trenutna_sekcija, hex_izlaz);
     write(fd, trenutna_sekcija->sadrzaj, trenutna_sekcija->velicina);
   }
 
@@ -578,3 +676,15 @@ void napravi_izvrsni_fajl(Linker* linker, const char* ime_izlaznog_fajla) {
   close(fd);
 }
 
+void obrisi_linker(Linker* linker) {
+
+
+  while (linker->prvi) {
+    CmdSekcija* stari = linker->prvi;
+    linker->prvi = linker->prvi->sledeci;
+    free(stari);
+  }
+
+  obrisi_tabelu_simbol(linker->tabela_simbola);
+  obrisi_tabelu_sekcija(linker->tabela_sekcija);
+}

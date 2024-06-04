@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
+#include <unistd.h>
 #include "../../inc/asembler/asembler.h"
 #include "../../inc/asembler/moja_string_sekcija.h"
 #include "../../inc/asembler/relokacioni_zapis.h"
@@ -41,6 +43,86 @@ static inline Elf32_Shdr* safe_realloc(Elf32_Shdr* shrd, int broj_zagljavlja) {
   }
 
   return shrd;
+}
+
+char* promeni_ektenziju(const char* ulazni_fajl) {
+  char* pozicija_tacke = strchr(ulazni_fajl, '.');
+  int n = (pozicija_tacke ? (pozicija_tacke - ulazni_fajl) : strlen(ulazni_fajl) - 1);
+
+  char* txt_fajl = (char*) malloc(sizeof(char) * (n + 5));
+
+  strncpy(txt_fajl, ulazni_fajl, n);
+  txt_fajl[n] = '.';
+  txt_fajl[n + 1] = 't';
+  txt_fajl[n + 2] = 'x';
+  txt_fajl[n + 3] = 't';
+  txt_fajl[n + 4] = '\0';
+
+  return txt_fajl;
+}
+
+char* int_to_string(int broj) {
+  char* string = (char*) malloc(sizeof(char) * 5);
+
+  sprintf(string, "%d", broj);
+
+  return string;
+}
+
+void readelf_program(const char* txt_fajl, const char*ulazni_fajl, Elf32_Shdr* zaglavlja, int broj_zaglavlja) {
+
+  int broj_sekcija = 0;
+
+  for (int i = 0; i < broj_zaglavlja; i++) {
+    if (zaglavlja[i].sh_type == SHT_PROGBITS) {
+      broj_sekcija++;
+    }
+  }
+
+  char** argv = (char**) malloc(sizeof(char*) * (4 + 2 * broj_sekcija));
+
+  argv[0] = "readelf";
+  argv[1] = (char*) ulazni_fajl;
+  argv[2] = "-hSsr";
+
+  int index = 3;
+  for (int i = 0; i < broj_zaglavlja; i++) {
+    if (zaglavlja[i].sh_type == SHT_PROGBITS) {
+      argv[index++] = "-x";
+      argv[index++] = int_to_string(i);
+    }
+  }
+
+  argv[index] = NULL;
+
+  int fd = open(txt_fajl, O_WRONLY | O_TRUNC | O_CREAT, 0664);
+  if (fd < 0) {
+    perror("Greska u otvaranju txt fajla\n");
+    exit(1);
+  }
+
+  close(STDOUT_FILENO);
+  dup(fd);
+  close(STDIN_FILENO);
+  
+  execvp(argv[0], argv);
+  perror("Greska u exec-u");
+  exit(1);
+}
+
+void napravi_txt_elf_file(const char* ulazni_fajl, Elf32_Shdr* zaglavlja, int broj_zaglavlja){
+  char* txt_fajl = promeni_ektenziju(ulazni_fajl);
+ 
+  int pid = fork();
+
+  if (pid < 0) {
+    perror("Greska u fork-u\n");
+    exit(1);
+  } else if (pid == 0) {
+    readelf_program(txt_fajl, ulazni_fajl, zaglavlja, broj_zaglavlja);
+  }
+
+  free(txt_fajl);
 }
 
 void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
@@ -255,5 +337,6 @@ void napravi_elf_file(Asembler* asembler, const char* izlazni_fajl) {
   close(fd);
   obrisi_moju_string_sekciju(shstr);
   obrisi_moju_string_sekciju(strtab);
+  napravi_txt_elf_file(izlazni_fajl, zagljavlja, broj_zaglavlja); 
   free(zagljavlja);
 }

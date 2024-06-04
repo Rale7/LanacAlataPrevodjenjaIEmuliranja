@@ -89,7 +89,7 @@ struct sekcija* dohvati_sekciju(TabelaSekcija* ts, const char* naziv) {
   }
 }
 
-void obrisi_sekciju(TabelaSekcija* ts) {
+void obrisi_tabelu_sekcija(TabelaSekcija* ts) {
 
   for (int i = 0; i < MAKS_BROJ_SEKCIJA; i++) {
 

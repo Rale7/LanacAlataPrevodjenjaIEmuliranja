@@ -189,25 +189,4 @@ void end_dir() {
     obrisi_bazen(asembler->trenutna_sekcija->bazen_literala);
   }
 
-  ispisi_simbole();
-
-  for (SekcijaElem* sekcija = asembler->sekcije; sekcija; sekcija = sekcija->sledeci) {
-    Sekcija* moja_sekcija = sekcija->sekcija;
-
-    printf("Sekcija %s", moja_sekcija->simbol->naziv);
-
-    for (int i = 0; i < moja_sekcija->location_counter; i++) {
-      if (i % 4 == 0) printf("\n%-5d:\t", i);
-      printf("0x%02hhx ", moja_sekcija->sadrzaj->byte[i]);
-    }
-
-    printf("\nRelokacinoni zapisi za sekciju %s\n", moja_sekcija->simbol->naziv);
-    printf("offset\t\tsimbol\t\taddend\n");
-    for (RelokacioniZapis* rz = moja_sekcija->trz->prvi; rz; rz = rz->sledeci) {
-      rz->simbol->tip_tvf->ispis_relokacionog_zapisa(rz->simbol, rz);
-      printf("\n");
-    }
-    printf("\n");
-  }
-
 }

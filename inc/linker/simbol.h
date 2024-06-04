@@ -12,6 +12,7 @@ typedef struct relokacioni_zapis* (*NapraviRelokacioniZapis)(struct simbol*, int
 typedef int (*DohvatiVrednost) (struct simbol*);
 typedef char (*DohvatiTip) (struct simbol*);
 typedef char (*DohvatiBind) (struct simbol*);
+typedef void (*ObrisiSimbol) (struct simbol*);
 
 typedef struct simbol_TVF {
   DohvatiSekciju dohvati_sekciju;
@@ -19,6 +20,7 @@ typedef struct simbol_TVF {
   DohvatiVrednost dohvati_vrednost;
   DohvatiTip dohvati_tip;
   DohvatiBind dohvati_bind;
+  ObrisiSimbol obrisi_simbol;
 } Simbol_TVF;
 
 typedef struct simbol {

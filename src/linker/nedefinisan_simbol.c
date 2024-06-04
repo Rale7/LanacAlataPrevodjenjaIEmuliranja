@@ -24,12 +24,18 @@ static char nedefinisan_bind(Simbol* simbol) {
   return STB_GLOBAL;
 }
 
+static void obrisi_nedefinisan_simbol(Simbol* simbol) {
+  free(simbol->naziv);
+  free(simbol);
+}
+
 static Simbol_TVF nedefinisani_tvf = {
   .dohvati_sekciju = &nedefinisana_sekcija,
   .napravi_relokacioni_zapis = &nedefinisan_rel,
   .dohvati_vrednost = &nedefinisana_vrednost,
   .dohvati_bind = &nedefinisan_bind,
-  .dohvati_tip = &dohvati_nedefinisan_tip
+  .dohvati_tip = &dohvati_nedefinisan_tip,
+  .obrisi_simbol = &obrisi_nedefinisan_simbol,
 };
 
 Simbol* init_nedefinisan_simbol(const char* naziv) {

@@ -120,3 +120,23 @@ Simbol* provera_postoji_nedefinisan(TabelaSimbola* tabela_simbola) {
 
   return NULL;
 }
+
+void obrisi_tabelu_simbol(TabelaSimbola* ts) {
+
+
+  for (int i = 0; i < ts->trenutni_id; i++) {
+    ts->simboli[i]->tvf->obrisi_simbol(ts->simboli[i]);
+  }
+
+  free(ts->simboli);
+  
+  for (int i = 0; i < BROJ_SIMBOLA; i++) {
+    while (ts->ulazi[i]) {
+      UlazSimbol* stari = ts->ulazi[i];
+      ts->ulazi[i] = ts->ulazi[i];
+      free(stari);
+    }
+  }
+
+  free(ts);
+}

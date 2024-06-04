@@ -25,12 +25,18 @@ static char dohvati_bind_simkonst(Simbol* simbol) {
   }
 }
 
+static void obrisi_simbolicku_konstantu(Simbol* simbol) {
+  free(simbol->naziv);
+  free(simbol);
+}
+
 static Simbol_TVF apsolutni_tvf = {
   .dohvati_sekciju = &apsolutna_sekcija,
   .napravi_relokacioni_zapis = &simkonst_rel,
   .dohvati_vrednost = &simkonst_vrednost,
   .dohvati_bind = &dohvati_bind_simkonst,
-  .dohvati_tip = &dohvati_nedefinisan_tip
+  .dohvati_tip = &dohvati_nedefinisan_tip,
+  .obrisi_simbol = &obrisi_simbolicku_konstantu,
 };
 
 Simbol* init_simbolicka_konstanta(const char* naziv, int vrednost, enum Tip tip) {

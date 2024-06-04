@@ -25,6 +25,8 @@ int main(int argc, const char* argv[]) {
 
   int status;
   pthread_t cpu_t, terminal_t, timer_t;
+
+  printf("Start\n");
     
   pthread_create(&cpu_t, NULL, &rad_racunara, racunar);
   pthread_create(&terminal_t, NULL, &terminal_radi, terminal);

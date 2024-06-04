@@ -23,12 +23,18 @@ static char lokalni_tip(Simbol* simbol) {
   return STB_LOCAL;
 }
 
+static void obrisi_lokalni_simbol(Simbol* simbol) {
+  free(simbol->naziv);
+  free(simbol);
+}
+
 static Simbol_TVF lokalni_tvf = {
   .dohvati_sekciju = &lokalni_dohvati_sekciju,
   .napravi_relokacioni_zapis = &lokalni_relokacioni_zapis,
   .dohvati_vrednost = &dohvati_vrednost,
   .dohvati_tip = &lokalni_tip,
-  .dohvati_tip = &dohvati_nedefinisan_tip
+  .dohvati_tip = &dohvati_nedefinisan_tip,
+  .obrisi_simbol = &obrisi_lokalni_simbol,
 };
 
 Simbol* init_lokalni_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {

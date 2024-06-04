@@ -138,7 +138,7 @@ direktiva: global lista_global_dir      {;}
          | section rec                  { section_dir($2); }
          | word lista_word_simbola      {;}
          | skip broj                    {skip_dir($2);}
-         | ascii recenica               {printf("%s\n", $2);ascii_dir($2);}
+         | ascii recenica               {ascii_dir($2);}
          | end                          {end_dir();YYACCEPT;}
          | equ rec ',' equ_izraz        {equ_dir($2, izraz); izraz = NULL;}
          ;

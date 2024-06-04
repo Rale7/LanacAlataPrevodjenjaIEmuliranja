@@ -21,12 +21,18 @@ static char globalni_bind(Simbol* simbol) {
   return STB_GLOBAL;
 }
 
+static void obrisi_globalni_simbol(Simbol* simbol) {
+  free(simbol->naziv);
+  free(simbol);
+}
+
 static Simbol_TVF globalni_tvf = {
   .dohvati_sekciju = &globalni_sekcija,
   .napravi_relokacioni_zapis = &globalni_rel,
   .dohvati_vrednost = &globalna_vrednost,
   .dohvati_tip = &globalni_bind,
-  .dohvati_tip = &dohvati_nedefinisan_tip
+  .dohvati_tip = &dohvati_nedefinisan_tip,
+  .obrisi_simbol = &obrisi_globalni_simbol,
 };
 
 Simbol* init_globalni_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {

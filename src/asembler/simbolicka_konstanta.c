@@ -50,7 +50,7 @@ static RelokacioniZapis* simkonst_napr_rel_zapis (Simbol* simbol, Sekcija* sekci
     oc = transliraj_instrukciju_direktno(oc);
 
     char reg_reg = *dohvati_sadrzaj(sekcija->sadrzaj, lokacija + 1);
-    reg_reg = (char)( (oc & 0xF0 == 0x90) ? (reg_reg & 0x0F) | (R0 << 4) : (reg_reg & 0xF0) | (R0));
+    reg_reg = (char)( (oc & 0xF0 == 0x90) ? (reg_reg & 0xF0) | (R0) : (reg_reg & 0xF0) | (R0));
     postavi_sadrzaj(sekcija->sadrzaj, lokacija + 1, &reg_reg, 1);
 
     postavi_sadrzaj(sekcija->sadrzaj, obracanje, &oc, sizeof(oc));
@@ -160,7 +160,7 @@ void razresavanje_neizracunjivog_simbola_konstanta(Simbol* simbol) {
     postavi_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija, &oc, sizeof(oc));
 
     char reg_reg = *dohvati_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 1);
-    reg_reg = (char)( (((oc & 0xF0) == 0x90) || ((oc & 0xF0) == 0x80)) ? (reg_reg & 0x0F) | (R0 << 4) : (reg_reg & 0xF0) | (R0));
+    reg_reg = (char)( (((oc & 0xF0) == 0x90) || ((oc & 0xF0) == 0x80)) ? (reg_reg & 0xF0) | (R0) : (reg_reg & 0xF0) | (R0));
     postavi_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 1, &reg_reg, 1);
 
     char reg_pom = *dohvati_sadrzaj(obracanje->sekcija->sadrzaj, obracanje->lokacija + 2);

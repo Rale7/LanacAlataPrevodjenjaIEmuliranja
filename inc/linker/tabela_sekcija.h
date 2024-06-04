@@ -27,6 +27,6 @@ void ubaci_zadatu_sekciju(TabelaSekcija*, struct tabela_simbola*, const char*);
 
 struct sekcija* dohvati_sekciju(TabelaSekcija*, const char*);
 
-void obrisi_sekciju(TabelaSekcija*);
+void obrisi_tabelu_sekcija(TabelaSekcija*);
 
 #endif

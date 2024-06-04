@@ -31,4 +31,6 @@ struct simbol* dohvati_simbol_id(TabelaSimbola*, int id);
 
 struct simbol* provera_postoji_nedefinisan(TabelaSimbola*);
 
+void obrisi_tabelu_simbol(TabelaSimbola*);
+
 #endif

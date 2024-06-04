@@ -2,6 +2,7 @@
 #include <string.h>
 #include <elf.h>
 #include <stdio.h>
+#include <string.h>
 #include "../../inc/linker/sekcija.h"
 #include "../../inc/linker/relokacioni_zapis.h"
 #include "../../inc/linker/linker.h"
@@ -31,12 +32,28 @@ static char dohvati_tip_sekcije(Simbol* simbol) {
   return STT_SECTION;
 }
 
+static void obrisi_sekciju(Simbol* simbol) {
+  Sekcija* sekcija = (Sekcija*) simbol;
+
+  free(sekcija->sadrzaj);
+  free(sekcija->simbol.naziv);
+  
+  while (sekcija->prvi) {
+    RelokacioniZapis* stari = sekcija->prvi;
+    sekcija->prvi = sekcija->prvi->sledeci;
+    free(stari);
+  }
+
+  free(sekcija);
+}
+
 static Simbol_TVF sekcija_tvf = {
   .dohvati_sekciju = &sekcija_dohvati_sekciju,
   .napravi_relokacioni_zapis = &sekcija_relokacioni_zapis,
   .dohvati_vrednost = &dohvati_vrednost_sekcije,
   .dohvati_bind = &dohvati_bind_sekcije,
   .dohvati_tip = &dohvati_tip_sekcije,
+  .obrisi_simbol = &obrisi_sekciju,
 };
 
 Sekcija* init_sekcija(TabelaSimbola* tabela_simbola, const char* naziv) {
@@ -105,13 +122,13 @@ void razresi_relokacije(Sekcija* sekcija) {
 
 }
 
-void ispisi_sadrzaj(Sekcija* sekcija) {
+void ispisi_sadrzaj(Sekcija* sekcija, FILE* izlaz) {
 
   for (int i = 0; i < sekcija->velicina; i += 4) {
-    printf("\n%d:\t", sekcija->virtuelna_adresa + i);
+    fprintf(izlaz, "\n%08x:\t", (unsigned int) sekcija->virtuelna_adresa + i);
     for (int j = i; j < sekcija->velicina && j < i + 4; j++) {
-      printf("%02hhx\t", sekcija->sadrzaj[j]);
+      fprintf(izlaz, "%02hhx\t", sekcija->sadrzaj[j]);
     }
   }
-  printf("\n");
+  fprintf(izlaz, "\n");
 }

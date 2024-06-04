@@ -30,4 +30,6 @@ void napravi_relokativni_fajl(Linker* linker, const char* ime_izlaznog_fajla);
 
 Linker* dohvati_linker();
 
+void obrisi_linker(Linker* linker);
+
 #endif

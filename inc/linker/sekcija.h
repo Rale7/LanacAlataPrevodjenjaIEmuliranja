@@ -2,6 +2,7 @@
 #define SEKCIJA_H
 
 #include "simbol.h"
+#include <stdio.h>
 
 struct relokacioni_zapis;
 struct tabela_simbola;
@@ -25,6 +26,6 @@ void dodaj_relokacioni_zapis(Sekcija* sekcija, struct relokacioni_zapis*);
 
 void razresi_relokacije(Sekcija*);
 
-void ispisi_sadrzaj(Sekcija* sekcija);
+void ispisi_sadrzaj(Sekcija* sekcija, FILE* );
 
 #endif
