@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "../../inc/emulator/terminal.h"
 #include "../../inc/emulator/racunar.h"
 #include "../../inc/emulator/timer.h" 
@@ -36,6 +38,9 @@ int main(int argc, const char* argv[]) {
 
   racunar->procesor->working = 0;
 
+  pthread_cancel(terminal_t);
+  pthread_cancel(timer_t);
+  
   printf("\nEmulated processor ");
   if (status == 1) {
     printf("executed halt instruction\n");
@@ -58,5 +63,6 @@ int main(int argc, const char* argv[]) {
   printf("r14=0x%08x\t", racunar->procesor->gpr[RE]);
   printf("r15=0x%08x\n", racunar->procesor->gpr[RF]);
 
+  obrisi_racunar(racunar);
 
 }

@@ -4,21 +4,27 @@
 
 #define DEFAULT_SEGMENT_SIZE 400U
 
-int dohvati_vrednost_memorija(Segment* segment, unsigned int adresa) {
+static int dohvati_vrednost_memorija(Segment* segment, unsigned int adresa) {
 
   int* adresa_sadrzaja = (int*)(segment->sadrzaj + adresa - segment->pocetna_adresa);
 
   return *adresa_sadrzaja;
 }
 
-void postavi_vrednost_memorija(Segment* segment, unsigned int adresa, int vrednost) {
+static void postavi_vrednost_memorija(Segment* segment, unsigned int adresa, int vrednost) {
   *((int*)(segment->sadrzaj + adresa - segment->pocetna_adresa)) = vrednost;
+}
+
+static void obrisi_obican_segment(Segment* segment) {
+  free(segment->sadrzaj);
+  free(segment);
 }
 
 Segment* init_segment_sadrzaj(unsigned int pocetna_adresa, unsigned int krajnja_adresa, char* sadrzaj) {
   static SegmentTVF memorija_tvf = {
     .dohvati_vrednost = &dohvati_vrednost_memorija,
-    .postavi_vrednost = &postavi_vrednost_memorija
+    .postavi_vrednost = &postavi_vrednost_memorija,
+    .obrisi_segment = &obrisi_obican_segment,
   }; 
 
   Segment* novi = (Segment*) malloc(sizeof(Segment));
@@ -227,3 +233,16 @@ void inorder_memorija(Segment* segment) {
   }
 }
 
+void obrisi_segment_sinove(Segment* cvor) {
+  if (cvor) {
+    Segment* stari = cvor;
+    obrisi_segment_sinove(cvor->levi);
+    obrisi_segment_sinove(cvor->desni);
+    stari->tvf->obrisi_segment(stari);
+  }
+}
+
+void obrisi_memoriju(Memorija* memorija) {
+  obrisi_segment_sinove(memorija->koren);
+  free(memorija);
+}

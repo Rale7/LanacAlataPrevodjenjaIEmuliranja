@@ -13,5 +13,7 @@ Racunar* init_racunar(const char*);
 
 void* rad_racunara(void*);
 
+void obrisi_racunar(Racunar*);
+
 
 #endif

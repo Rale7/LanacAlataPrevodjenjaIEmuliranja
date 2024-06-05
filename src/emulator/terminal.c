@@ -18,11 +18,16 @@ static void postavi_vrednost_terminal_out(Segment* segment, unsigned int adresa,
   fflush(stdout);
 }
 
+static void obrisi_terminal_out(Segment* segment) {
+  free(segment);
+}
+
 Segment* init_segment_terminal_out(int pocetna_adresa, int krajnja_adresa) {
 
   static SegmentTVF terminal_tvf = {
     .dohvati_vrednost = &dohvati_vrednost_terminal_out,
     .postavi_vrednost = &postavi_vrednost_terminal_out,
+    .obrisi_segment = &obrisi_terminal_out,
   };
 
   Segment* novi = (Segment*) malloc(sizeof(Segment));
@@ -50,6 +55,13 @@ static int dohvati_vrednost_terminal(Segment* segment,  unsigned int adresa) {
 static void postavi_vrednost_terminal(Segment* segment, unsigned int adresa, int vrednost) {
 
 }
+
+static void obrisi_terminal(Segment* segment) {
+  Terminal* terminal = (Terminal*) segment;
+
+  free(terminal);
+}
+
 struct termios stari;
 
 void vrati_terminal() {
@@ -82,7 +94,8 @@ void podesi_terminal() {
 Segment* init_segment_terminal(int pocetna_adresa, int krajnja_adresa, Procesor* procesor) {
   static SegmentTVF terminal_tvf = {
     .dohvati_vrednost = &dohvati_vrednost_terminal,
-    .postavi_vrednost = &postavi_vrednost_terminal
+    .postavi_vrednost = &postavi_vrednost_terminal,
+    .obrisi_segment = &obrisi_terminal,
   };
 
   Terminal* terminal = (Terminal *) malloc(sizeof(Terminal));

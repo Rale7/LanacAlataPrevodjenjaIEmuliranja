@@ -51,4 +51,6 @@ typedef struct procesor {
 
 Procesor* init_procesor();
 
+void obrisi_procesor(Procesor*);
+
 #endif

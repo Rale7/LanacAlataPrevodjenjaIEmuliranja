@@ -156,8 +156,6 @@ void equ_dir(const char* naziv_simbola, Izraz* izraz) {
     Simbol* simbol = proveri_relokatibilnost_init_simbol(izraz, dohvati_asembler()->trenutna_sekcija, naziv_simbola);
     dodaj_simbol(dohvati_asembler()->tabel_simbola, simbol);
   }
-
-  printf("\n");
 }
 
 void ascii_dir(const char* string) {

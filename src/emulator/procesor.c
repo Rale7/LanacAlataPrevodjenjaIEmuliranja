@@ -487,3 +487,12 @@ Procesor* init_procesor() {
 
   return novi;
 }
+
+void obrisi_procesor(Procesor* procesor) {
+
+  sem_destroy(&procesor->semaphore[0]);
+  sem_destroy(&procesor->semaphore[1]);
+
+  free(procesor);
+
+}

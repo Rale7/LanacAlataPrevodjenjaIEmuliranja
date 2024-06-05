@@ -5,11 +5,11 @@
 #include "../../inc/emulator/procesor.h"
 #include "../../inc/emulator/timer.h"
 
-int dovhati_vrednost_timer(Segment* segment, unsigned int adresa) {
+static int dovhati_vrednost_timer(Segment* segment, unsigned int adresa) {
   return 0;
 }
 
-void postavi_vrednost_timer(Segment* segment, unsigned int adresa, int vrednost) {
+static void postavi_vrednost_timer(Segment* segment, unsigned int adresa, int vrednost) {
   Timer* timer = (Timer*) segment;
 
   timer->tim_cfg = vrednost;
@@ -18,10 +18,17 @@ void postavi_vrednost_timer(Segment* segment, unsigned int adresa, int vrednost)
   }
 }
 
+static void obrisi_timer(Segment* segment) {
+  Timer* timer = (Timer*) segment;
+
+  free(timer);
+}
+
 Segment* init_timer(unsigned int pocetna_adresa, unsigned int krajnja_adresa, Procesor* procesor) {
   static SegmentTVF timer_tvf = {
     .dohvati_vrednost = &dovhati_vrednost_timer,
-    .postavi_vrednost = &postavi_vrednost_timer
+    .postavi_vrednost = &postavi_vrednost_timer,
+    .obrisi_segment = &obrisi_timer,
   };
 
   Timer* timer = (Timer*) malloc(sizeof(Timer));

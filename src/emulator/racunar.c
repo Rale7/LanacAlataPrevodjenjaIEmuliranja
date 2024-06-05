@@ -5,6 +5,12 @@
 #include <elf.h>
 #include "../../inc/emulator/racunar.h"
 
+#define PROVERI_ELF_HEADER(elf_header_ident) \
+  elf_header_ident[0] != 0x7f || \
+  elf_header_ident[1] != 'E' || \
+  elf_header_ident[2] != 'L' || \
+  elf_header_ident[3] != 'F'
+
 void ucitaj_segment(Racunar* racunar, int fd, Elf32_Off offset, Elf32_Addr vaddr, Elf32_Xword filesz) {
   if (filesz == 0) return;
 
@@ -35,6 +41,16 @@ Racunar* init_racunar(const char* ime_ulaznog_fajla) {
 
   Elf32_Ehdr elf_header;
   read(fd, &elf_header, sizeof(elf_header));
+
+  if (PROVERI_ELF_HEADER(elf_header.e_ident)) {
+    perror("Zadati fajl nije u dobrom fomratu\n");
+    exit(1);
+  }
+
+  if (elf_header.e_type != ET_EXEC) {
+    perror("Zadati fajl nije u dobrom formatu\n");
+    exit(1);
+  }
 
   Elf32_Off phoffs = elf_header.e_phoff;
   Elf32_Half phentsize = elf_header.e_phentsize;
@@ -75,7 +91,10 @@ void obrada_prekida(Procesor* procesor, Memorija* memorija, int cause, int IRQ) 
   procesor->csr[CAUSE] = cause;
   procesor->csr[STATUS] = procesor->gpr[STATUS] | STATUSI;
   procesor->gpr[PC] = procesor->csr[HANDLER];
-  procesor->irq[IRQ] = 0;
+  
+  if (IRQ == 0 || IRQ == 1) {
+    procesor->irq[IRQ] = 0;
+  }
 }
 
 void provera_prekida(Procesor* procesor, Memorija* memorija) {
@@ -131,9 +150,21 @@ void* rad_racunara(void* racunar_arg) {
       status = -1;
     }
 
-    if (status != 0) return (void*) (long)status;
+    if (status == 1) return (void*) (long)status;
+
+    if (status == -1) {
+      obrada_prekida(racunar->procesor, racunar->memorija, 1, -1);
+    }
 
     provera_prekida(racunar->procesor, racunar->memorija);
   }
+
+}
+
+void obrisi_racunar(Racunar* racunar) {
+
+  obrisi_memoriju(racunar->memorija);
+  obrisi_procesor(racunar->procesor);
+  free(racunar);
 
 }

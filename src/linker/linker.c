@@ -79,7 +79,7 @@ void procesiraj_ulazni_fajl(Linker* linker, const char* ime_ulaznog_fajla) {
   int fd = open(ime_ulaznog_fajla, O_RDONLY);
   if (fd < 0) {
     printf("Greska pri otvaranju ulaznog fajla %s\n", ime_ulaznog_fajla);
-    return;
+    exit(1);
   }
 
   Elf32_Ehdr elf_header;

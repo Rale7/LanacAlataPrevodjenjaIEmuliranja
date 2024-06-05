@@ -5,10 +5,12 @@ struct segment;
 
 typedef int (*DohvatiVrednost)(struct segment*, unsigned int address);
 typedef void (*PostaviVrednost)(struct segment*, unsigned int address, int value);
+typedef void (*ObrisiSegment)(struct segment*);
 
 typedef struct segment_tvf {
   DohvatiVrednost dohvati_vrednost;
   PostaviVrednost postavi_vrednost;
+  ObrisiSegment obrisi_segment;
 } SegmentTVF; 
 
 typedef struct segment {
@@ -39,5 +41,7 @@ int dohvati_vrednost(Memorija*, unsigned int adresa);
 void postavi_vrednost(Memorija*, unsigned int adresa, int vrednost);
 
 void inorder_memorija(Segment* segment);
+
+void obrisi_memoriju(Memorija* memorija);
 
 #endif
