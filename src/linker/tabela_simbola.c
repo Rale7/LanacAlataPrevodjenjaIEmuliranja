@@ -113,7 +113,8 @@ Simbol* provera_postoji_nedefinisan(TabelaSimbola* tabela_simbola) {
 
   for (int i = 1; i < tabela_simbola->trenutni_id; i++) {
 
-    if (tabela_simbola->simboli[i]->tvf->dohvati_sekciju(tabela_simbola->simboli[i]) == SHN_UNDEF) {
+    if (tabela_simbola->simboli[i]->tvf->dohvati_sekciju(tabela_simbola->simboli[i]) == SHN_UNDEF
+    && tabela_simbola->simboli[i]->tvf->dohvati_tip(tabela_simbola->simboli[i]) == STB_GLOBAL) {
       return tabela_simbola->simboli[i];
     }
   }

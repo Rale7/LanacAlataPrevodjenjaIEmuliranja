@@ -1,10 +1,11 @@
 # file: main.s
 .extern handler
-.global my_start, my_counter
+.global my_start, my_counter, cr
 
 .section code
 .equ initial_sp, 0xFFFFFEFE
 .equ timer_config, 0xFFFFFF10
+.equ cr, 0xD
 my_start:
     ld $initial_sp, %sp
     ld $handler, %r1

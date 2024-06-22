@@ -171,9 +171,7 @@ void procesiraj_ulazni_fajl(Linker* linker, const char* ime_ulaznog_fajla) {
         novi = init_globalni_simbol(naziv_trenutnog_simbola, tabela_simbola[i].st_value, sekcija);
       }
     } else {
-        if (tabela_simbola[i].st_shndx == SHN_UNDEF) {
-        printf("Greska: Nedefinisan lokalni simbol %s\n", naziv_trenutnog_simbola);
-      } else if (tabela_simbola[i].st_shndx == SHN_ABS) {
+        if (tabela_simbola[i].st_shndx == SHN_ABS) {
         novi = init_simbolicka_konstanta(naziv_trenutnog_simbola, tabela_simbola[i].st_value, LOKALNI);
       } else {
         Sekcija* sekcija = dohvati_sekciju(linker->tabela_sekcija, 

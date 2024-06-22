@@ -128,3 +128,20 @@ Simbol* init_nedefinisan_simbol(const char* naziv) {
 
   return novi;
 }
+
+void prebaci_u_nedefinisan(Simbol* simbol, Sekcija* sekcija, int vrednost) {
+
+  simbol->vrednost = vrednost;
+  simbol->sekcija = sekcija;
+  simbol->tvf = &nedefinisan_simbol_tvf;
+  simbol->neizracunjivi = NULL;
+
+  while (simbol->oulista) {
+    ObracanjeUnapred* stari = simbol->oulista;
+    simbol->oulista = simbol->oulista->sledeci;
+
+    nedefinisan_sdw(simbol, stari->sekcija, stari->lokacija);
+    free(stari);
+  }
+
+}

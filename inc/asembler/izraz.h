@@ -6,7 +6,7 @@ struct sekcija;
 struct clan_izraza;
 struct sekcija_rel;
 
-enum Operator {SABIRANJE, ODUZIMANJE, MNOZENJE, DELJENJE};
+enum Operator {SABIRANJE, ODUZIMANJE, MNOZENJE, DELJENJE, OTVORENA_ZAGRADA, ZATVORENA_ZAGRADA};
 
 enum KlasifikatorDelaIzraza {SIMBOL, OPERATOR, LITERAL};
 
@@ -67,5 +67,7 @@ enum Relokatibilnost proveri_relokatibilnost(Izraz* izraz, struct sekcija** sekc
 struct simbol* proveri_relokatibilnost_init_simbol(Izraz*, struct sekcija*, const char*);
 
 int izracunaj_vrednost_izraza(Izraz*);
+
+struct simbol* dohvati_referisani_simbol(Izraz* izraz);
 
 #endif

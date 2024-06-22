@@ -41,7 +41,11 @@ char lokalni_tip(Simbol* simbol) {
 }
 
 static int lokalni_simbol_rel(Simbol *simbol) {
-  return simbol->sekcija->simbol->redosled;
+  if (simbol->referisani == NULL) {
+    return simbol->sekcija->simbol->redosled;
+  } else {
+    return simbol->referisani->redosled;
+  }
 }
 
 static Tip_TVF lokalni_tvf = {
@@ -82,6 +86,7 @@ Simbol* init_simbol(const char* naziv, int vrednost, Sekcija* sekcija) {
   novi->oilista = NULL;
   novi->neizracunjivi = NULL;
   novi->tip = STB_LOCAL;
+  novi->referisani = NULL;
 
   uvezi_simbol(novi);
 
@@ -95,7 +100,11 @@ char dohvati_tip_nedefinisan(Simbol* simbol) {
 }
 
 int definisana_referisana_sekcija(Simbol* simbol) {
-  return simbol->sekcija->broj_elf_ulaza;
+  if (simbol->sekcija) { 
+    return simbol->sekcija->broj_elf_ulaza;
+  } else {
+    return 0;
+  }
 }
 
 void ispisi_simbole() {

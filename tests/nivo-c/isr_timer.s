@@ -1,11 +1,11 @@
 # file: isr_timer.s
 
-.extern terminal_out
+.extern terminal_out, cr
 
 .section isr
 # prekidna rutina za tajmer
 .equ line_feed, 0xA
-.equ carriage_return, 0xD
+.equ carriage_return, cr
 .equ message_len, message_end - message_start
 .global isr_timer
 isr_timer:

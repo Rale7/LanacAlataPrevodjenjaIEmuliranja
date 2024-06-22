@@ -60,4 +60,6 @@ char transliraj_instrukciju_direktno(char oc);
 
 char transliraj_instrukciju_pomeraj(char oc);
 
+void instrukcija_prenosa_registara(enum Registar r1, enum Registar r2);
+
 #endif

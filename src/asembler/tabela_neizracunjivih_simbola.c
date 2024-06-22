@@ -85,6 +85,8 @@ static int prazan_stek_NE(StekNE* vrh) {
   return vrh == NULL;
 }
 
+
+
 int topolosko_sortiranje_util(NeizracunjiviElem**graf, NeizracunjiviSimbol** simboli,
  int indeks, int* obidjeni, StekNE** stek, int* rek_stek) {
 
@@ -135,6 +137,10 @@ void topolosko_sortiranje(NeizracunjiviElem** graf, NeizracunjiviSimbol** simbol
       razresavanje_neizracunjivog_simbola_konstanta(ns->simbol);
     } else if (status == RELOKATIVAN) {
       prebaci_u_definisan(ns->simbol, sekcija_rel, izracunaj_vrednost_izraza(ns->izraz));
+      if (sekcija_rel->simbol->redosled == 0) {
+        ns->simbol->referisani = dohvati_referisani_simbol(ns->izraz);  
+      }
+      
     }
   }
 

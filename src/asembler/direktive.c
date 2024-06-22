@@ -145,15 +145,16 @@ void equ_dir(const char* naziv_simbola, Izraz* izraz) {
   if ((simbol = dohvati_vrednost_simbola(dohvati_asembler()->tabel_simbola, naziv_simbola)) != NULL) {
     Sekcija* temp;
     enum Relokatibilnost status;
-    if ((status = proveri_relokatibilnost(izraz, &temp) == NEIZRACUNJIV)) {
+    if ((status = proveri_relokatibilnost(izraz, &temp)) == NEIZRACUNJIV) {
       prebaci_u_neizracunjiv(simbol, izraz, dohvati_asembler()->trenutna_sekcija);
     } else if (status == RELOKATIVAN) {
       prebaci_u_definisan(simbol, temp, izracunaj_vrednost_izraza(izraz));
+      simbol->referisani = dohvati_referisani_simbol(izraz);
     } else {
       prebaci_u_simbolicku_konstantu(simbol, izracunaj_vrednost_izraza(izraz));
     }
   } else {
-    Simbol* simbol = proveri_relokatibilnost_init_simbol(izraz, dohvati_asembler()->trenutna_sekcija, naziv_simbola);
+    simbol = proveri_relokatibilnost_init_simbol(izraz, dohvati_asembler()->trenutna_sekcija, naziv_simbola);
     dodaj_simbol(dohvati_asembler()->tabel_simbola, simbol);
   }
 }

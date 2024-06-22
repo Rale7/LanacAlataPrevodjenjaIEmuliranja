@@ -15,6 +15,7 @@ static SekcijaRel* init_sekcija_rel(int broj_pojavljivanja, Sekcija* sekcija) {
 
   novi->broj_pojavljivanja = broj_pojavljivanja;
   novi->sekcija = sekcija;
+  novi->sledeci = NULL;
 
   return novi;
 }
@@ -79,6 +80,27 @@ static int mno_delj_rp() {
   return 3;
 }
 
+static int otvorena_zagrada_ipr() {
+  return 6;
+}
+
+static int otvorena_zagrada_spr() {
+  return 0;
+}
+
+static int zatvorena_zagrada_ipr() {
+  return 1;
+}
+
+static int zatvorena_zagrada_spr() {
+  return 0;
+}
+
+static ClanIzraza* greska_operacije(ClanIzraza* op1, ClanIzraza* op2) {
+  printf("Greska zagrade se ne smeju naci u postfiksnoj notaciji\n");
+  exit(1);
+}
+
 static ClanIzraza* sab_oper(ClanIzraza* op1, ClanIzraza* op2) {
   int vrednost1 = (op1->klasifikator == SIMBOL ? op1->deo.simbol->vrednost : op1->deo.literal);
   int vrednost2 = (op2->klasifikator == SIMBOL ? op2->deo.simbol->vrednost : op2->deo.literal);
@@ -141,6 +163,16 @@ static Operator_TVF optvf[] = {
     .irp = &mno_delj_rp,
     .srp = &mno_delj_rp,
     .operacija = &delj_oper,
+    .dodaj_relokatibilnost = &greska_relokatibilnost
+  }, {
+    .irp = &otvorena_zagrada_ipr,
+    .srp = &otvorena_zagrada_spr,
+    .operacija = &greska_operacije,
+    .dodaj_relokatibilnost = &greska_relokatibilnost
+  }, {
+    .irp = &zatvorena_zagrada_ipr,
+    .srp = &zatvorena_zagrada_spr,
+    .operacija = &greska_operacije,
     .dodaj_relokatibilnost = &greska_relokatibilnost
   }
 };
@@ -241,7 +273,11 @@ void prebaci_postfix(Izraz* izraz) {
         vrh = pop_stek(vrh);
         dodaj_clan(izraz, sa_vrha);
       }
-      vrh = push_stek(vrh, trenutni);
+      if (trenutni->klasifikator == OPERATOR && trenutni->deo.operator == &optvf[ZATVORENA_ZAGRADA])  {
+        vrh = pop_stek(vrh);
+      } else {
+        vrh = push_stek(vrh, trenutni);
+      }
     }
   }
 
@@ -251,6 +287,20 @@ void prebaci_postfix(Izraz* izraz) {
     vrh = pop_stek(vrh);
     dodaj_clan(izraz, sa_vrha);
   }
+}
+
+Simbol* dohvati_referisani_simbol(Izraz* izraz) {
+
+  for (ClanIzraza* trenutni = izraz->prvi; trenutni; trenutni = trenutni->sledeci) {
+    if (trenutni->klasifikator == SIMBOL && trenutni->deo.simbol->sekcija->simbol->redosled == 0) {
+      if (trenutni->deo.simbol->referisani == NULL) {
+        return trenutni->deo.simbol;
+      } else {
+        return trenutni->deo.simbol->referisani;
+      }
+    } 
+  }
+  return NULL;
 }
 
 Simbol* proveri_relokatibilnost_init_simbol(Izraz* izraz, Sekcija* sekcija, const char* naziv_simbola) {
@@ -265,7 +315,9 @@ Simbol* proveri_relokatibilnost_init_simbol(Izraz* izraz, Sekcija* sekcija, cons
   } else if (status == APSOLUTAN) {
     return init_simbolicka_konstanta(naziv_simbola, izraz, sekcija);
   } else if (status == RELOKATIVAN) {
-    return init_definisan_simbol(naziv_simbola, izracunaj_vrednost_izraza(izraz), sekcija_rel);
+    Simbol* ret = init_definisan_simbol(naziv_simbola, izracunaj_vrednost_izraza(izraz), sekcija_rel);
+    ret->referisani = dohvati_referisani_simbol(izraz);
+    return ret;
   }
 
 }

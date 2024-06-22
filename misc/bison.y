@@ -156,31 +156,27 @@ lista_word_simbola: rec                   {word_dir_sim($1);}
 equ_izraz:              rec                     {if (izraz == NULL) izraz = init_Izraz();
                                                 dodaj_clan(izraz, init_clan_izraza_simbol($1));}
                 |       broj                    {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_literal($1));}    
-                |       equ_izraz '+' rec       {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(0));
-                                                dodaj_clan(izraz, init_clan_izraza_simbol($3));}
-                |       equ_izraz '-' rec       {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(1));
-                                                dodaj_clan(izraz, init_clan_izraza_simbol($3));}
-                |       equ_izraz '*' rec       {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(2));
-                                                dodaj_clan(izraz, init_clan_izraza_simbol($3));}
-                |       equ_izraz '/' rec       {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(3));
-                                                dodaj_clan(izraz, init_clan_izraza_simbol($3));}
-                |       equ_izraz '+' broj      {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(0));
-                                                dodaj_clan(izraz, init_clan_izraza_literal($3));}
-                |       equ_izraz '-' broj      {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(1));
-                                                dodaj_clan(izraz, init_clan_izraza_literal($3));}
-                |       equ_izraz '*' broj      {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(2));
-                                                dodaj_clan(izraz, init_clan_izraza_literal($3));}
-                |       equ_izraz '/' broj      {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(3));
-                                                dodaj_clan(izraz, init_clan_izraza_literal($3));}
+                                                dodaj_clan(izraz, init_clan_izraza_literal($1));}
+                |       '('                     {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(4));}
+                |       ')'                     {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(5));}  
+                |       equ_izraz rec           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_simbol($2));}
+                |       equ_izraz broj          {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_literal($2));}
+                |       equ_izraz '+'           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(0));}
+                |       equ_izraz '-'           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(1));}
+                |       equ_izraz '*'           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(2));}
+                |       equ_izraz '/'           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(3));}
+                |       equ_izraz '('           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(4));}
+                |       equ_izraz ')'           {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_operator(5));}
                 ;    
 %%
 

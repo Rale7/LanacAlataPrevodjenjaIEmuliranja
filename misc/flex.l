@@ -56,7 +56,7 @@
 [0-8]+                      {yylval.num = atoi(yytext); return broj;}
 [ \t]                       ;
 #.*                          ;
-[+\-\*/\n,":$\[\]]  	          {return yytext[0];}
+[+\-\*/\n,":$\[\]\(\)]  	          {return yytext[0];}
                           
 
 %%

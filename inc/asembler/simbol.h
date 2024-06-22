@@ -75,6 +75,7 @@ typedef struct simbol {
   struct neizracunjivi_simbol* neizracunjivi;
   ObracanjeInstrukcije* oilista;
   char tip;
+  struct simbol* referisani;
 } Simbol;
 
 typedef struct elem {
@@ -117,5 +118,7 @@ int definisana_referisana_sekcija(Simbol*);
 void prebaci_u_simbolicku_konstantu(Simbol*, int vrednost);
 
 ObracanjeInstrukcije* init_obracanje_instrukcija(struct sekcija* sekcija, int lokacija);
+
+void prebaci_u_nedefinisan(Simbol*, struct sekcija*, int);
 
 #endif
