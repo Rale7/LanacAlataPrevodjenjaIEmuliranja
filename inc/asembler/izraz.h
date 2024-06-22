@@ -12,12 +12,14 @@ enum KlasifikatorDelaIzraza {SIMBOL, OPERATOR, LITERAL};
 
 typedef int (*IRP)();
 typedef int (*SRP)();
+typedef int (*Rank)();
 typedef struct clan_izraza* (*Operacija)(struct clan_izraza* op1, struct clan_izraza* op2);
 typedef struct sekcija_rel* (*DodajRelokatibilnost)(struct sekcija_rel*, struct sekcija*);
 
 typedef struct {
   IRP irp;
   SRP srp;
+  Rank rank;
   Operacija operacija;
   DodajRelokatibilnost dodaj_relokatibilnost;
 } Operator_TVF;

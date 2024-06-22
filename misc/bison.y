@@ -160,7 +160,10 @@ equ_izraz:              rec                     {if (izraz == NULL) izraz = init
                 |       '('                     {if (izraz == NULL) izraz = init_Izraz();
                                                 dodaj_clan(izraz, init_clan_izraza_operator(4));}
                 |       ')'                     {if (izraz == NULL) izraz = init_Izraz();
-                                                dodaj_clan(izraz, init_clan_izraza_operator(5));}  
+                                                dodaj_clan(izraz, init_clan_izraza_operator(5));}
+                |       '-'                     {if (izraz == NULL) izraz = init_Izraz();
+                                                dodaj_clan(izraz, init_clan_izraza_literal(0));
+                                                dodaj_clan(izraz, init_clan_izraza_operator(1));}
                 |       equ_izraz rec           {if (izraz == NULL) izraz = init_Izraz();
                                                 dodaj_clan(izraz, init_clan_izraza_simbol($2));}
                 |       equ_izraz broj          {if (izraz == NULL) izraz = init_Izraz();

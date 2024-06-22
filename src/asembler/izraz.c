@@ -330,10 +330,20 @@ enum Relokatibilnost proveri_relokatibilnost(Izraz* izraz, Sekcija** sekcija) {
     if (trenutni->klasifikator == OPERATOR) {
       ClanIzraza* op1 = top_stek(vrh);
       vrh = pop_stek(vrh);
+      Sekcija* relokativan;
+
+      if (trenutni->deo.operator == &optvf[MNOZENJE] || trenutni->deo.operator == &optvf[DELJENJE]) {
+        if (op1->klasifikator == SIMBOL &&
+        op1->deo.simbol->tvf->dohvati_relokatibilnost(op1->deo.simbol, &relokativan) == RELOKATIVAN ||
+        vrh->clan->klasifikator == SIMBOL &&
+        vrh->clan->deo.simbol->tvf->dohvati_relokatibilnost(vrh->clan->deo.simbol, &relokativan) == RELOKATIVAN) {
+          printf("Simbol se ne moze mnoziti niti deliti\n");
+          exit(1);
+        }
+      }
 
       if (op1->klasifikator == LITERAL) continue;
 
-      Sekcija* relokativan;
       enum Relokatibilnost status = op1->deo.simbol->tvf->dohvati_relokatibilnost(op1->deo.simbol, &relokativan);
 
       if (status == NEIZRACUNJIV) {
