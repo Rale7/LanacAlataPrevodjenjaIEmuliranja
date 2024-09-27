@@ -3,7 +3,7 @@
 ## Platform
 
 You need to run this project on the Linux operating system and the required tools.
-For compilation are GC, Make, Flex, and Bison.
+For compilation are GCC, Make, Flex, and Bison.
 
 If you have all these tools, just type
 
