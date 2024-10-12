@@ -1,10 +1,12 @@
+#include "linker/relokacioni_zapis.h"
+
 #include <stdlib.h>
-#include "../../inc/linker/relokacioni_zapis.h"
-#include "../../inc/linker/simbol.h"
 
-RelokacioniZapis* init_relokacioni_zapis(int offset, Simbol* simbol, int addend) {
+#include "linker/simbol.h"
 
-  RelokacioniZapis* novi = (RelokacioniZapis*) malloc(sizeof(RelokacioniZapis));
+RelokacioniZapis* init_relokacioni_zapis(int offset, Simbol* simbol,
+                                         int addend) {
+  RelokacioniZapis* novi = (RelokacioniZapis*)malloc(sizeof(RelokacioniZapis));
   if (novi == NULL) {
     exit(1);
   }

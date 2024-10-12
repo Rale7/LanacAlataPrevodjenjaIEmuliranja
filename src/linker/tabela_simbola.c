@@ -1,19 +1,20 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "linker/tabela_simbola.h"
+
 #include <elf.h>
-#include "../../inc/linker/simbol.h"
-#include "../../inc/linker/tabela_simbola.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "linker/simbol.h"
 
 TabelaSimbola* init_tabela_simbola() {
-
-  TabelaSimbola* nova = (TabelaSimbola*) malloc(sizeof(TabelaSimbola));
+  TabelaSimbola* nova = (TabelaSimbola*)malloc(sizeof(TabelaSimbola));
   if (nova == NULL) {
     exit(1);
   }
 
   nova->kapacitet = 50;
-  nova->simboli = (Simbol**) calloc(nova->kapacitet, sizeof(Simbol*));
+  nova->simboli = (Simbol**)calloc(nova->kapacitet, sizeof(Simbol*));
   if (nova->simboli == NULL) {
     exit(1);
   }
@@ -29,7 +30,6 @@ TabelaSimbola* init_tabela_simbola() {
 }
 
 static int izracunaj_indeks(const char* naziv) {
-
   int broj = 0;
 
   for (int i = 0; naziv[i]; i++) {
@@ -37,15 +37,16 @@ static int izracunaj_indeks(const char* naziv) {
   }
 
   return broj % BROJ_SIMBOLA;
+}
 
-} 
-
-Simbol* proveri_postojanje_globalnog(TabelaSimbola* tabela_simbola, const char* naziv) {
-
+Simbol* proveri_postojanje_globalnog(TabelaSimbola* tabela_simbola,
+                                     const char* naziv) {
   int indeks = izracunaj_indeks(naziv);
 
-  for (UlazSimbol* tekuci = tabela_simbola->ulazi[indeks]; tekuci; tekuci = tekuci->sledeci) {
-    if (strcmp(tekuci->simbol->naziv, naziv) == 0 && tekuci->simbol->tip == GLOBALNI) {
+  for (UlazSimbol* tekuci = tabela_simbola->ulazi[indeks]; tekuci;
+       tekuci = tekuci->sledeci) {
+    if (strcmp(tekuci->simbol->naziv, naziv) == 0 &&
+        tekuci->simbol->tip == GLOBALNI) {
       return tekuci->simbol;
     }
   }
@@ -54,10 +55,10 @@ Simbol* proveri_postojanje_globalnog(TabelaSimbola* tabela_simbola, const char* 
 }
 
 static int ubaci_u_niz(TabelaSimbola* tabela_simbola, Simbol* simbol) {
-  
   if (tabela_simbola->trenutni_id == tabela_simbola->kapacitet) {
     tabela_simbola->kapacitet = (tabela_simbola->kapacitet * 3) / 2;
-    tabela_simbola->simboli = realloc(tabela_simbola->simboli, tabela_simbola->kapacitet);
+    tabela_simbola->simboli =
+        realloc(tabela_simbola->simboli, tabela_simbola->kapacitet);
     if (tabela_simbola->simboli == NULL) {
       exit(1);
     }
@@ -70,10 +71,9 @@ static int ubaci_u_niz(TabelaSimbola* tabela_simbola, Simbol* simbol) {
 }
 
 int ubaci_simbol(TabelaSimbola* tabela_simbola, Simbol* simbol) {
-
   int indeks = izracunaj_indeks(simbol->naziv);
 
-  UlazSimbol* novi_ulaz = (UlazSimbol*) malloc(sizeof(UlazSimbol));
+  UlazSimbol* novi_ulaz = (UlazSimbol*)malloc(sizeof(UlazSimbol));
   if (novi_ulaz == NULL) {
     exit(1);
   }
@@ -88,10 +88,10 @@ int ubaci_simbol(TabelaSimbola* tabela_simbola, Simbol* simbol) {
 }
 
 Simbol* dohvati_simbol_ime(TabelaSimbola* tabela_simbola, const char* ime) {
-
   int indeks = izracunaj_indeks(ime);
 
-  for (UlazSimbol* tekuci = tabela_simbola->ulazi[indeks]; tekuci; tekuci = tekuci->sledeci) {
+  for (UlazSimbol* tekuci = tabela_simbola->ulazi[indeks]; tekuci;
+       tekuci = tekuci->sledeci) {
     if (strcmp(tekuci->simbol->naziv, ime) == 0) {
       return tekuci->simbol;
     }
@@ -101,20 +101,19 @@ Simbol* dohvati_simbol_ime(TabelaSimbola* tabela_simbola, const char* ime) {
 }
 
 Simbol* dohvati_simbol_id(TabelaSimbola* tabela_simbola, int id) {
-
   if (id > tabela_simbola->trenutni_id) {
     return NULL;
   }
-  
+
   return tabela_simbola->simboli[id];
 }
 
 Simbol* provera_postoji_nedefinisan(TabelaSimbola* tabela_simbola) {
-
   for (int i = 1; i < tabela_simbola->trenutni_id; i++) {
-
-    if (tabela_simbola->simboli[i]->tvf->dohvati_sekciju(tabela_simbola->simboli[i]) == SHN_UNDEF
-    && tabela_simbola->simboli[i]->tvf->dohvati_tip(tabela_simbola->simboli[i]) == STB_GLOBAL) {
+    if (tabela_simbola->simboli[i]->tvf->dohvati_sekciju(
+            tabela_simbola->simboli[i]) == SHN_UNDEF &&
+        tabela_simbola->simboli[i]->tvf->dohvati_tip(
+            tabela_simbola->simboli[i]) == STB_GLOBAL) {
       return tabela_simbola->simboli[i];
     }
   }
@@ -123,14 +122,12 @@ Simbol* provera_postoji_nedefinisan(TabelaSimbola* tabela_simbola) {
 }
 
 void obrisi_tabelu_simbol(TabelaSimbola* ts) {
-
-
   for (int i = 0; i < ts->trenutni_id; i++) {
     ts->simboli[i]->tvf->obrisi_simbol(ts->simboli[i]);
   }
 
   free(ts->simboli);
-  
+
   for (int i = 0; i < BROJ_SIMBOLA; i++) {
     while (ts->ulazi[i]) {
       UlazSimbol* stari = ts->ulazi[i];

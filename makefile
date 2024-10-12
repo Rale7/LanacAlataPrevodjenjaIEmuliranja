@@ -2,6 +2,7 @@
 CC = gcc
 CXX = g++
 CFLAGS = -g -pthread
+CFLAGS += -Iinc
 
 # Tmp folder
 TMP = ./tmp
@@ -11,7 +12,8 @@ TMP_BISON = ./tmp/bison
 
 BISON_FOLDER = ./misc
 
-# Fajlovi potrebni za pravljenje asemblera
+# Promenljive za asembler
+
 ASM_DIR = ./src/asembler
 ASM_SRC_C = $(wildcard $(ASM_DIR)/*.c)
 ASM_SRC_CPP = $(wildcard $(ASM_DIR)/*.cpp)
@@ -26,7 +28,6 @@ ASM_DEP = $(patsubst $(ASM_DIR)/%.c, $(TMP_DEP)/%_asm.d, $(ASM_SRC_C)) \
           $(patsubst $(ASM_DIR)/%.cpp, $(TMP_DEP)/%_asm.d, $(ASM_SRC_CPP)) \
 					$(TMP_DEP)/bison_asm.d $(TMP_DEP)/flex_asm.d
 
-# Asembler
 ASM_PROGRAM = asembler
 
 # Flex files
@@ -34,6 +35,39 @@ FLEX_FILE = misc/flex.l
 
 # Generisani lekser
 FLEX_FILES = $(TMP_OBJ)/lex.yy.o
+
+# Promenljive za linker
+
+LD_PROGRAM=linker
+
+LD_DIR=./src/linker
+LD_SRC_C = $(wildcard $(LD_DIR)/*.c)
+LD_SRC_CPP = $(wildcard $(LD_DIR)/*.cpp)
+
+LD_OBJ = $(patsubst $(LD_DIR)/%.c, $(TMP_OBJ)/%_ld.o, $(LD_SRC_C)) \
+				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_OBJ)/%_ld.o, $(LD_SRC_CPP))
+
+LD_DEP = $(patsubst $(LD_DIR)/%.c, $(TMP_DEP)/%_ld.d, $(LD_SRC_C)) \
+				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_DEP)/%_ld.d, $(LD_SRC_CPP))
+
+# Promenljive za emulator
+EM_PROGRAM = emulator
+
+EM_DIR=./src/emulator
+EM_SRC_C = $(wildcard $(EM_DIR)/*.c)
+EM_SRC_CPP = $(wildcard $(EM_DIR)/*.cpp) 
+
+EM_OBJ =	$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%_em.o, $(EM_SRC_C)) \
+					$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%.em_o, $(EM_SRC_CPP))
+
+EM_DEP =	$(patsubst $(EM_DIR)/%.c, $(TMP_DEP)/%_em.d, $(EM_SRC_C)) \
+					$(patsubst $(EM_DIR)/%.cpp, $(TMP_DEP)/%_em.d, $(EM_SRC_CPP))
+
+
+
+# Napravi sve fajlove
+
+all: $(ASM_PROGRAM) $(LD_PROGRAM) $(EM_PROGRAM)
 
 # Napravi izvrsni fajl za asembler
 $(ASM_PROGRAM): $(ASM_OBJ)
@@ -80,19 +114,6 @@ $(TMP_DEP)/%_asm.d: $(TMP_BISON)/%.c
 
 # Skripta za linker
 
-# Linker
-LD_PROGRAM=linker
-
-LD_DIR=./src/linker
-LD_SRC_C = $(wildcard $(LD_DIR)/*.c)
-LD_SRC_CPP = $(wildcard $(LD_DIR)/*.cpp)
-
-LD_OBJ = $(patsubst $(LD_DIR)/%.c, $(TMP_OBJ)/%_ld.o, $(LD_SRC_C)) \
-				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_OBJ)/%_ld.o, $(LD_SRC_CPP))
-
-LD_DEP = $(patsubst $(LD_DIR)/%.c, $(TMP_DEP)/%_ld.d, $(LD_SRC_C)) \
-				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_DEP)/%_ld.d, $(LD_SRC_CPP))
-
 $(LD_PROGRAM): $(LD_OBJ)
 	$(CXX) -o $@ $^ $(CFLAGS)
 
@@ -112,18 +133,7 @@ $(TMP_DEP)/%_ld.d: $(LD_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@
 
-#Emulator
-EM_PROGRAM = emulator
-
-EM_DIR=./src/emulator
-EM_SRC_C = $(wildcard $(EM_DIR)/*.c)
-EM_SRC_CPP = $(wildcard $(EM_DIR)/*.cpp) 
-
-EM_OBJ =	$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%_em.o, $(EM_SRC_C)) \
-					$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%.em_o, $(EM_SRC_CPP))
-
-EM_DEP =	$(patsubst $(EM_DIR)/%.c, $(TMP_DEP)/%_em.d, $(EM_SRC_C)) \
-					$(patsubst $(EM_DIR)/%.cpp, $(TMP_DEP)/%_em.d, $(EM_SRC_CPP))
+# Skripta za emulator
 
 $(EM_PROGRAM): $(EM_OBJ)
 	$(CXX) -o $@ $^ $(CFLAGS)
@@ -151,14 +161,17 @@ endif
 ifeq ($(MAKECMDGOALS), linker)
 -include $(LD_DEP)
 endif
+ifeq ($MAKECMDGOALS), emulator)
+-include $(EM_DEP)
+endif
 
-# Napravi sve fajlove
-
-all: $(ASM_PROGRAM) $(LD_PROGRAM) $(EM_PROGRAM)
 
 # Brisanje
 clean:
-	rm -r $(TMP)
+	rm -rf $(TMP)
 	rm -f *~
+	rm -f $(ASM_PROGRAM)
+	rm -f $(LD_PROGRAM)
+	rm -f $(EM_PROGRAM)
 
 .PHONY: clean

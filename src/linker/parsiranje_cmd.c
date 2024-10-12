@@ -1,12 +1,13 @@
-#include <string.h>
-#include <stdlib.h>
+#include "linker/parsiranje_cmd.h"
+
 #include <stdio.h>
-#include "../../inc/linker/parsiranje_cmd.h"
-#include "../../inc/linker/linker.h"
+#include <stdlib.h>
+#include <string.h>
+
+#include "linker/linker.h"
 
 CmdSekcija* init_cmd_sekcija(const char* ime, int va) {
-
-  CmdSekcija* nova = (CmdSekcija*) malloc(sizeof(CmdSekcija));
+  CmdSekcija* nova = (CmdSekcija*)malloc(sizeof(CmdSekcija));
   if (nova == NULL) {
     exit(1);
   }
@@ -16,7 +17,6 @@ CmdSekcija* init_cmd_sekcija(const char* ime, int va) {
   nova->sledeci = NULL;
 
   return nova;
-
 }
 
 int parsiraj_broj(const char* broj) {
@@ -31,11 +31,9 @@ int parsiraj_broj(const char* broj) {
   } else {
     return atoi(broj);
   }
-
 }
 
 void place_parsiranje(Linker* linker, char* argument) {
-
   int cnt = 0;
 
   while (argument[cnt++] != '=');
@@ -44,18 +42,17 @@ void place_parsiranje(Linker* linker, char* argument) {
   while (argument[cnt] != '@') cnt++;
   argument[cnt++] = '\0';
 
-  CmdSekcija* novi =  init_cmd_sekcija(ime_sekcije, parsiraj_broj(argument + cnt));
+  CmdSekcija* novi =
+      init_cmd_sekcija(ime_sekcije, parsiraj_broj(argument + cnt));
   *linker->indirect = novi;
   linker->indirect = &novi->sledeci;
-
 }
 
-enum TipLinkovanja parsiraj(Linker* linker, int argc, char* argv[], const char** izlazna_datoteka) {
-
+enum TipLinkovanja parsiraj(Linker* linker, int argc, char* argv[],
+                            const char** izlazna_datoteka) {
   enum TipLinkovanja tip = NEPOZNATO;
 
   for (int i = 1; i < argc; i++) {
-
     if (strcmp(argv[i], "-o") == 0) {
       if (++i > argc) {
         printf("Nevalidni argumenti\n");
@@ -81,8 +78,7 @@ enum TipLinkovanja parsiraj(Linker* linker, int argc, char* argv[], const char**
     } else {
       procesiraj_ulazni_fajl(linker, argv[i]);
     }
-  } 
+  }
 
   return tip;
-
 }

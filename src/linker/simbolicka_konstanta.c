@@ -1,21 +1,17 @@
-#include <stdlib.h>
 #include <elf.h>
-#include "../../inc/linker/simbol.h"
-#include "../../inc/linker/sekcija.h"
-#include "../../inc/linker/relokacioni_zapis.h"
+#include <stdlib.h>
 
-static int apsolutna_sekcija(Simbol* simbol) {
-  return SHN_ABS;
-}
+#include "linker/relokacioni_zapis.h"
+#include "linker/sekcija.h"
+#include "linker/simbol.h"
+
+static int apsolutna_sekcija(Simbol* simbol) { return SHN_ABS; }
 
 static RelokacioniZapis* simkonst_rel(Simbol* simbol, int offset, int addend) {
-
   return init_relokacioni_zapis(offset, simbol, addend);
 }
 
-static int simkonst_vrednost(Simbol* simbol) {
-  return simbol->vrednost;
-}
+static int simkonst_vrednost(Simbol* simbol) { return simbol->vrednost; }
 
 static char dohvati_bind_simkonst(Simbol* simbol) {
   if (simbol->tip == LOKALNI) {
@@ -31,16 +27,16 @@ static void obrisi_simbolicku_konstantu(Simbol* simbol) {
 }
 
 static Simbol_TVF apsolutni_tvf = {
-  .dohvati_sekciju = &apsolutna_sekcija,
-  .napravi_relokacioni_zapis = &simkonst_rel,
-  .dohvati_vrednost = &simkonst_vrednost,
-  .dohvati_bind = &dohvati_bind_simkonst,
-  .dohvati_tip = &dohvati_nedefinisan_tip,
-  .obrisi_simbol = &obrisi_simbolicku_konstantu,
+    .dohvati_sekciju = &apsolutna_sekcija,
+    .napravi_relokacioni_zapis = &simkonst_rel,
+    .dohvati_vrednost = &simkonst_vrednost,
+    .dohvati_bind = &dohvati_bind_simkonst,
+    .dohvati_tip = &dohvati_nedefinisan_tip,
+    .obrisi_simbol = &obrisi_simbolicku_konstantu,
 };
 
-Simbol* init_simbolicka_konstanta(const char* naziv, int vrednost, enum Tip tip) {
-
+Simbol* init_simbolicka_konstanta(const char* naziv, int vrednost,
+                                  enum Tip tip) {
   Simbol* simbol = init_simbol(naziv, vrednost, NULL);
 
   simbol->tip = tip;
@@ -50,9 +46,7 @@ Simbol* init_simbolicka_konstanta(const char* naziv, int vrednost, enum Tip tip)
 }
 
 void prebaci_u_simbolicku_konstantu(Simbol* simbol, int vrednost) {
-
   simbol->vrednost = vrednost;
   simbol->tvf = &apsolutni_tvf;
   simbol->tip = GLOBALNI;
-
 }

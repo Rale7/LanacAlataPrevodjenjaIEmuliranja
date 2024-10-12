@@ -1,30 +1,32 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "emulator/racunar.h"
+
 #include <elf.h>
-#include "../../inc/emulator/racunar.h"
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#define PROVERI_ELF_HEADER(elf_header_ident) \
-  elf_header_ident[0] != 0x7f || \
-  elf_header_ident[1] != 'E' || \
-  elf_header_ident[2] != 'L' || \
-  elf_header_ident[3] != 'F'
+#define PROVERI_ELF_HEADER(elf_header_ident)                   \
+  elf_header_ident[0] != 0x7f || elf_header_ident[1] != 'E' || \
+      elf_header_ident[2] != 'L' || elf_header_ident[3] != 'F'
 
-void ucitaj_segment(Racunar* racunar, int fd, Elf32_Off offset, Elf32_Addr vaddr, Elf32_Xword filesz) {
+void ucitaj_segment(Racunar* racunar, int fd, Elf32_Off offset,
+                    Elf32_Addr vaddr, Elf32_Xword filesz) {
   if (filesz == 0) return;
 
-  char* sadrzaj = (char*) malloc(sizeof(char) * filesz);
+  char* sadrzaj = (char*)malloc(sizeof(char) * filesz);
   lseek(fd, offset, SEEK_SET);
 
   read(fd, sadrzaj, filesz);
 
-  ubaci_segment(racunar->memorija, init_segment_sadrzaj((unsigned int)vaddr, (unsigned int )(vaddr) + filesz - 1, sadrzaj));
+  ubaci_segment(
+      racunar->memorija,
+      init_segment_sadrzaj((unsigned int)vaddr,
+                           (unsigned int)(vaddr) + filesz - 1, sadrzaj));
 }
 
 Racunar* init_racunar(const char* ime_ulaznog_fajla) {
-
-  Racunar* novi = (Racunar*) malloc(sizeof(Racunar));
+  Racunar* novi = (Racunar*)malloc(sizeof(Racunar));
   if (novi == NULL) {
     printf("Greska pri alokaciji memorije\n");
     exit(1);
@@ -66,14 +68,11 @@ Racunar* init_racunar(const char* ime_ulaznog_fajla) {
   read(fd, program_header_table, phentsize * phnum);
 
   for (int i = 0; i < phnum; i++) {
-    
     if (program_header_table[i].p_type != PT_LOAD) continue;
 
-    ucitaj_segment(
-      novi, fd, program_header_table[i].p_offset,
-      program_header_table[i].p_vaddr,
-      program_header_table[i].p_filesz
-    );
+    ucitaj_segment(novi, fd, program_header_table[i].p_offset,
+                   program_header_table[i].p_vaddr,
+                   program_header_table[i].p_filesz);
   }
 
   close(fd);
@@ -83,22 +82,22 @@ Racunar* init_racunar(const char* ime_ulaznog_fajla) {
   return novi;
 }
 
-void obrada_prekida(Procesor* procesor, Memorija* memorija, int cause, int IRQ) {
+void obrada_prekida(Procesor* procesor, Memorija* memorija, int cause,
+                    int IRQ) {
   procesor->gpr[SP] -= 4;
   postavi_vrednost(memorija, procesor->gpr[SP], procesor->csr[STATUS]);
   procesor->gpr[SP] -= 4;
-  postavi_vrednost(memorija, procesor->gpr[SP], procesor->gpr[PC]); 
+  postavi_vrednost(memorija, procesor->gpr[SP], procesor->gpr[PC]);
   procesor->csr[CAUSE] = cause;
   procesor->csr[STATUS] = procesor->gpr[STATUS] | STATUSI;
   procesor->gpr[PC] = procesor->csr[HANDLER];
-  
+
   if (IRQ == 0 || IRQ == 1) {
     procesor->irq[IRQ] = 0;
   }
 }
 
 void provera_prekida(Procesor* procesor, Memorija* memorija) {
-
   if (procesor->csr[STATUS] & STATUSI) return;
 
   if (!(procesor->csr[STATUS] & STATUSTl)) {
@@ -125,32 +124,34 @@ void provera_prekida(Procesor* procesor, Memorija* memorija) {
 }
 
 void* rad_racunara(void* racunar_arg) {
-
-  Racunar* racunar = (Racunar*) racunar_arg;
+  Racunar* racunar = (Racunar*)racunar_arg;
 
   unsigned char instrukcija[4];
   int indeks;
-  Instrukcija* trenutna; 
+  Instrukcija* trenutna;
   int status;
 
   while (1) {
-    int procitana_instrukcija = dohvati_vrednost(racunar->memorija, racunar->procesor->gpr[PC]); 
+    int procitana_instrukcija =
+        dohvati_vrednost(racunar->memorija, racunar->procesor->gpr[PC]);
 
-    instrukcija[0] = (unsigned char) (procitana_instrukcija & 0xFF);
-    instrukcija[1] = (unsigned char) ((procitana_instrukcija & 0xFF00) >> 8);
-    instrukcija[2] = (unsigned char) ((procitana_instrukcija & 0xFF0000) >> 16);
-    instrukcija[3] = (unsigned char) ((procitana_instrukcija & 0xFF000000) >> 24);
+    instrukcija[0] = (unsigned char)(procitana_instrukcija & 0xFF);
+    instrukcija[1] = (unsigned char)((procitana_instrukcija & 0xFF00) >> 8);
+    instrukcija[2] = (unsigned char)((procitana_instrukcija & 0xFF0000) >> 16);
+    instrukcija[3] =
+        (unsigned char)((procitana_instrukcija & 0xFF000000) >> 24);
 
     unsigned char indeks = instrukcija[0];
 
     if (racunar->procesor->instrukcije[indeks]) {
       racunar->procesor->gpr[PC] += 4;
-      status = racunar->procesor->instrukcije[indeks](racunar->procesor, racunar->memorija, instrukcija);
+      status = racunar->procesor->instrukcije[indeks](
+          racunar->procesor, racunar->memorija, instrukcija);
     } else {
       status = -1;
     }
 
-    if (status == 1) return (void*) (long)status;
+    if (status == 1) return (void*)(long)status;
 
     if (status == -1) {
       obrada_prekida(racunar->procesor, racunar->memorija, 1, -1);
@@ -158,13 +159,10 @@ void* rad_racunara(void* racunar_arg) {
 
     provera_prekida(racunar->procesor, racunar->memorija);
   }
-
 }
 
 void obrisi_racunar(Racunar* racunar) {
-
   obrisi_memoriju(racunar->memorija);
   obrisi_procesor(racunar->procesor);
   free(racunar);
-
 }

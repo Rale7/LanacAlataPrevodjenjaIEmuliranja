@@ -1,16 +1,18 @@
+#include "asembler/moja_string_sekcija.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "../../inc/asembler/moja_string_sekcija.h"
 
-MojaStringSekcija *init_moja_string_sekcija() {
-  MojaStringSekcija* nova = (MojaStringSekcija*) malloc(sizeof(MojaStringSekcija));
+MojaStringSekcija* init_moja_string_sekcija() {
+  MojaStringSekcija* nova =
+      (MojaStringSekcija*)malloc(sizeof(MojaStringSekcija));
   if (nova == NULL) {
     exit(1);
   }
 
   nova->kapacitet = 50;
   nova->velicina = 1;
-  nova->slova = (char*) calloc(50, sizeof(char));
+  nova->slova = (char*)calloc(50, sizeof(char));
   if (nova->slova == NULL) {
     exit(1);
   }
@@ -19,12 +21,11 @@ MojaStringSekcija *init_moja_string_sekcija() {
 }
 
 int dodaj_string(MojaStringSekcija* mss, const char* novi) {
-
   int n = strlen(novi) + 1;
 
   while (mss->kapacitet < mss->velicina + n) {
     mss->kapacitet = (mss->kapacitet * 3) / 2;
-    mss->slova = (char*) realloc(mss->slova, mss->kapacitet);
+    mss->slova = (char*)realloc(mss->slova, mss->kapacitet);
     if (mss->slova == NULL) {
       exit(1);
     }
@@ -39,14 +40,14 @@ int dodaj_string(MojaStringSekcija* mss, const char* novi) {
   return ret;
 }
 
-int dodaj_string_povezano(MojaStringSekcija* mss, const char* prvi, const char* drugi){
-
+int dodaj_string_povezano(MojaStringSekcija* mss, const char* prvi,
+                          const char* drugi) {
   int n1 = strlen(prvi) + 1;
   int n2 = strlen(drugi) + 1;
 
   while (mss->kapacitet < mss->velicina + n1 + n2) {
     mss->kapacitet = (mss->kapacitet * 3) / 2;
-    mss->slova = (char*) realloc(mss->slova, mss->kapacitet);
+    mss->slova = (char*)realloc(mss->slova, mss->kapacitet);
     if (mss->slova == NULL) {
       exit(1);
     }
@@ -67,11 +68,9 @@ int dodaj_string_povezano(MojaStringSekcija* mss, const char* prvi, const char* 
   mss->velicina += n2;
 
   return ret;
-
 }
 
 void obrisi_moju_string_sekciju(MojaStringSekcija* mss) {
-
   free(mss->slova);
   free(mss);
 }

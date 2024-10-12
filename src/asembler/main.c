@@ -1,35 +1,32 @@
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include "../../inc/asembler/neizracunjivi_simbol.h"
-#include "../../inc/asembler/sadrzaj_sekcije.h"
-#include "../../inc/asembler/sekcija.h"
-#include "../../inc/asembler/simbol.h"
-#include "../../inc/asembler/tabela_simbola.h"
-#include "../../inc/asembler/asembler.h"
+
+#include "asembler/asembler.h"
+#include "asembler/neizracunjivi_simbol.h"
+#include "asembler/sadrzaj_sekcije.h"
+#include "asembler/sekcija.h"
+#include "asembler/simbol.h"
+#include "asembler/tabela_simbola.h"
 
 int yyparse();
-
 
 extern int optind;
 
 int main(int argc, char* argv[]) {
-  
   int opt;
   const char* ime_izlazne_datoteke;
   const char* ime_ulazne_datoteke;
 
   while ((opt = getopt(argc, argv, "o:")) != -1) {
-    
-    switch (opt)
-    {
-    case 'o':
-      ime_izlazne_datoteke = optarg;
-      break;          
-    default:
-      printf("Nepoznata opcija\n");
-      exit(1);
+    switch (opt) {
+      case 'o':
+        ime_izlazne_datoteke = optarg;
+        break;
+      default:
+        printf("Nepoznata opcija\n");
+        exit(1);
     }
   }
 
@@ -56,5 +53,4 @@ int main(int argc, char* argv[]) {
   obrisi_asembler(dohvati_asembler());
 
   return status;
-
 }

@@ -1,14 +1,14 @@
+#include <fcntl.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include "../../inc/emulator/terminal.h"
-#include "../../inc/emulator/racunar.h"
-#include "../../inc/emulator/timer.h" 
+
+#include "emulator/racunar.h"
+#include "emulator/terminal.h"
+#include "emulator/timer.h"
 
 int main(int argc, const char* argv[]) {
-
   if (argc < 2) {
     perror("Nedovoljan broj argumenata\n");
     exit(1);
@@ -17,7 +17,8 @@ int main(int argc, const char* argv[]) {
   const char* ime_ulaza = argv[1];
 
   Racunar* racunar = init_racunar(ime_ulaza);
-  Segment* terminal = init_segment_terminal(0xFFFFFF04, 0xFFFFFF07, racunar->procesor);
+  Segment* terminal =
+      init_segment_terminal(0xFFFFFF04, 0xFFFFFF07, racunar->procesor);
   Segment* terminal_out = init_segment_terminal_out(0xFFFFFF00, 0xFFFFFF03);
   Segment* timer = init_timer(0xFFFFFF10, 0xFFFFFF13, racunar->procesor);
 
@@ -29,18 +30,18 @@ int main(int argc, const char* argv[]) {
   pthread_t cpu_t, terminal_t, timer_t;
 
   printf("Start\n");
-    
+
   pthread_create(&cpu_t, NULL, &rad_racunara, racunar);
   pthread_create(&terminal_t, NULL, &terminal_radi, terminal);
   pthread_create(&timer_t, NULL, &rad_tajmera, timer);
 
-  pthread_join(cpu_t, (void**) &status);
+  pthread_join(cpu_t, (void**)&status);
 
   racunar->procesor->working = 0;
 
   pthread_cancel(terminal_t);
   pthread_cancel(timer_t);
-  
+
   printf("\nEmulated processor ");
   if (status == 1) {
     printf("executed halt instruction\n");
@@ -64,5 +65,4 @@ int main(int argc, const char* argv[]) {
   printf("r15=0x%08x\n", racunar->procesor->gpr[RF]);
 
   obrisi_racunar(racunar);
-
 }

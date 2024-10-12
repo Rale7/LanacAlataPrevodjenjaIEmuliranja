@@ -1,18 +1,19 @@
+#include "linker/tabela_sekcija.h"
+
 #include <stdlib.h>
 #include <string.h>
-#include "../../inc/linker/tabela_sekcija.h"
-#include "../../inc/linker/sekcija.h"
-#include "../../inc/linker/tabela_simbola.h"
+
+#include "linker/sekcija.h"
+#include "linker/tabela_simbola.h"
 
 TabelaSekcija* init_tabela_sekcija() {
-
-  TabelaSekcija* nova = (TabelaSekcija*) malloc(sizeof(TabelaSekcija));
+  TabelaSekcija* nova = (TabelaSekcija*)malloc(sizeof(TabelaSekcija));
   if (nova == NULL) {
     exit(1);
   }
 
   nova->kapacitet = 50;
-  nova->sekcije = (Sekcija**) calloc(nova->kapacitet, sizeof(Sekcija*));
+  nova->sekcije = (Sekcija**)calloc(nova->kapacitet, sizeof(Sekcija*));
   if (nova->sekcije == NULL) {
     exit(1);
   }
@@ -25,11 +26,9 @@ TabelaSekcija* init_tabela_sekcija() {
   }
 
   return nova;
-
 }
 
 static int izracunaj_indeks(TabelaSekcija* ts, const char* naziv) {
-
   int broj = 0;
 
   for (int i = 0; naziv[i]; i++) {
@@ -37,14 +36,13 @@ static int izracunaj_indeks(TabelaSekcija* ts, const char* naziv) {
   }
 
   return broj % MAKS_BROJ_SEKCIJA;
+}
 
-} 
-
-static void upisi_sekciju_niz(TabelaSekcija* tabela_sekcija,  Sekcija* sekcija) {
-
+static void upisi_sekciju_niz(TabelaSekcija* tabela_sekcija, Sekcija* sekcija) {
   if (tabela_sekcija->broj_sekcija == tabela_sekcija->kapacitet) {
     tabela_sekcija->kapacitet = (tabela_sekcija->kapacitet * 3) / 2;
-    tabela_sekcija->sekcije = (Sekcija**) realloc(tabela_sekcija->sekcije, tabela_sekcija->kapacitet);
+    tabela_sekcija->sekcije =
+        (Sekcija**)realloc(tabela_sekcija->sekcije, tabela_sekcija->kapacitet);
     if (tabela_sekcija->sekcije == NULL) {
       exit(1);
     }
@@ -53,19 +51,18 @@ static void upisi_sekciju_niz(TabelaSekcija* tabela_sekcija,  Sekcija* sekcija) 
   tabela_sekcija->sekcije[tabela_sekcija->broj_sekcija++] = sekcija;
 }
 
-
-
-void ubaci_zadatu_sekciju(TabelaSekcija* ts, TabelaSimbola* tab_sim, const char* naziv) {
-
+void ubaci_zadatu_sekciju(TabelaSekcija* ts, TabelaSimbola* tab_sim,
+                          const char* naziv) {
   int indeks = izracunaj_indeks(ts, naziv);
 
-  for (SekcijaUlaz* tekuci = ts->prvi[indeks]; tekuci; tekuci = tekuci->sledeci) {
+  for (SekcijaUlaz* tekuci = ts->prvi[indeks]; tekuci;
+       tekuci = tekuci->sledeci) {
     if (strcmp(tekuci->sekcija->simbol.naziv, naziv) == 0) {
       return;
-    } 
+    }
   }
 
-  SekcijaUlaz* novi = (SekcijaUlaz*) malloc(sizeof(SekcijaUlaz));
+  SekcijaUlaz* novi = (SekcijaUlaz*)malloc(sizeof(SekcijaUlaz));
   if (novi == NULL) {
     exit(1);
   }
@@ -79,10 +76,10 @@ void ubaci_zadatu_sekciju(TabelaSekcija* ts, TabelaSimbola* tab_sim, const char*
 }
 
 struct sekcija* dohvati_sekciju(TabelaSekcija* ts, const char* naziv) {
-
   int indeks = izracunaj_indeks(ts, naziv);
 
-  for (SekcijaUlaz* tekuci = ts->prvi[indeks]; tekuci; tekuci = tekuci->sledeci) {
+  for (SekcijaUlaz* tekuci = ts->prvi[indeks]; tekuci;
+       tekuci = tekuci->sledeci) {
     if (strcmp(tekuci->sekcija->simbol.naziv, naziv) == 0) {
       return tekuci->sekcija;
     }
@@ -90,9 +87,7 @@ struct sekcija* dohvati_sekciju(TabelaSekcija* ts, const char* naziv) {
 }
 
 void obrisi_tabelu_sekcija(TabelaSekcija* ts) {
-
   for (int i = 0; i < MAKS_BROJ_SEKCIJA; i++) {
-
     while (ts->prvi[i]) {
       SekcijaUlaz* stari = ts->prvi[i];
       ts->prvi[i] = ts->prvi[i]->sledeci;
@@ -101,7 +96,6 @@ void obrisi_tabelu_sekcija(TabelaSekcija* ts) {
   }
 
   free(ts);
-
 }
 
 void heapify(Sekcija** sekcije, int n, int i) {
@@ -110,11 +104,13 @@ void heapify(Sekcija** sekcije, int n, int i) {
   int l = 2 * i + 1;
   int d = 2 * i + 2;
 
-  if (l < n && sekcije[l]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
+  if (l < n &&
+      sekcije[l]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
     najveci = l;
   }
 
-  if (d < n && sekcije[d]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
+  if (d < n &&
+      sekcije[d]->virtuelna_adresa > sekcije[najveci]->virtuelna_adresa) {
     najveci = d;
   }
 
@@ -128,24 +124,19 @@ void heapify(Sekcija** sekcije, int n, int i) {
 }
 
 void heap_sort(Sekcija** sekcije, int n) {
-
   for (int i = n / 2; i >= 0; i--) {
     heapify(sekcije, n, i);
   }
 
   for (int i = n - 1; i > 0; i--) {
-
     Sekcija* tmp = sekcije[i];
     sekcije[i] = sekcije[0];
-    sekcije[0] = tmp; 
+    sekcije[0] = tmp;
 
     heapify(sekcije, i, 0);
   }
-
 }
 
 void sortiraj_tabelu_sekcija(TabelaSekcija* tabela_sekcija) {
-
   heap_sort(tabela_sekcija->sekcije, tabela_sekcija->broj_sekcija);
-
 }

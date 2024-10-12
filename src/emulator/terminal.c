@@ -1,36 +1,37 @@
+#include "emulator/terminal.h"
+
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include "../../inc/emulator/terminal.h"
-#include "../../inc/emulator/memorija.h"
-#include "../../inc/emulator/procesor.h"
 
-static int dohvati_vrednost_terminal_out(Segment* segment, unsigned int adresa) {
+#include "emulator/memorija.h"
+#include "emulator/procesor.h"
+
+static int dohvati_vrednost_terminal_out(Segment* segment,
+                                         unsigned int adresa) {
   fprintf(stderr, "Pokusaj citanja sa nedozvoljene adrese %d\n", adresa);
   exit(1);
 }
 
-static void postavi_vrednost_terminal_out(Segment* segment, unsigned int adresa, int vrednost) {
-  putchar((char) vrednost);
+static void postavi_vrednost_terminal_out(Segment* segment, unsigned int adresa,
+                                          int vrednost) {
+  putchar((char)vrednost);
   fflush(stdout);
 }
 
-static void obrisi_terminal_out(Segment* segment) {
-  free(segment);
-}
+static void obrisi_terminal_out(Segment* segment) { free(segment); }
 
 Segment* init_segment_terminal_out(int pocetna_adresa, int krajnja_adresa) {
-
   static SegmentTVF terminal_tvf = {
-    .dohvati_vrednost = &dohvati_vrednost_terminal_out,
-    .postavi_vrednost = &postavi_vrednost_terminal_out,
-    .obrisi_segment = &obrisi_terminal_out,
+      .dohvati_vrednost = &dohvati_vrednost_terminal_out,
+      .postavi_vrednost = &postavi_vrednost_terminal_out,
+      .obrisi_segment = &obrisi_terminal_out,
   };
 
-  Segment* novi = (Segment*) malloc(sizeof(Segment));
+  Segment* novi = (Segment*)malloc(sizeof(Segment));
   if (novi == NULL) {
     perror("Greska u alokaciji\n");
     exit(1);
@@ -46,27 +47,24 @@ Segment* init_segment_terminal_out(int pocetna_adresa, int krajnja_adresa) {
   return novi;
 }
 
-static int dohvati_vrednost_terminal(Segment* segment,  unsigned int adresa) {
-  Terminal* terminal = (Terminal*) segment;
+static int dohvati_vrednost_terminal(Segment* segment, unsigned int adresa) {
+  Terminal* terminal = (Terminal*)segment;
 
   return (int)terminal->karakter & 0xFF;
 }
 
-static void postavi_vrednost_terminal(Segment* segment, unsigned int adresa, int vrednost) {
-
-}
+static void postavi_vrednost_terminal(Segment* segment, unsigned int adresa,
+                                      int vrednost) {}
 
 static void obrisi_terminal(Segment* segment) {
-  Terminal* terminal = (Terminal*) segment;
+  Terminal* terminal = (Terminal*)segment;
 
   free(terminal);
 }
 
 struct termios stari;
 
-void vrati_terminal() {
-  tcsetattr(STDIN_FILENO, TCSANOW, &stari);
-}
+void vrati_terminal() { tcsetattr(STDIN_FILENO, TCSANOW, &stari); }
 
 void handle_signal(int signal) {
   vrati_terminal();
@@ -91,14 +89,15 @@ void podesi_terminal() {
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &moj_terminal);
 }
 
-Segment* init_segment_terminal(int pocetna_adresa, int krajnja_adresa, Procesor* procesor) {
+Segment* init_segment_terminal(int pocetna_adresa, int krajnja_adresa,
+                               Procesor* procesor) {
   static SegmentTVF terminal_tvf = {
-    .dohvati_vrednost = &dohvati_vrednost_terminal,
-    .postavi_vrednost = &postavi_vrednost_terminal,
-    .obrisi_segment = &obrisi_terminal,
+      .dohvati_vrednost = &dohvati_vrednost_terminal,
+      .postavi_vrednost = &postavi_vrednost_terminal,
+      .obrisi_segment = &obrisi_terminal,
   };
 
-  Terminal* terminal = (Terminal *) malloc(sizeof(Terminal));
+  Terminal* terminal = (Terminal*)malloc(sizeof(Terminal));
   if (terminal == NULL) {
     perror("Greska u alokaciji\n");
     exit(1);
@@ -119,11 +118,11 @@ Segment* init_segment_terminal(int pocetna_adresa, int krajnja_adresa, Procesor*
 
   podesi_terminal();
 
-  return (Segment*) terminal;
+  return (Segment*)terminal;
 }
 
 void* terminal_radi(void* terminal_arg) {
-  Terminal* terminal = (Terminal*) terminal_arg;
+  Terminal* terminal = (Terminal*)terminal_arg;
 
   while (terminal->procesor->working) {
     read(STDIN_FILENO, &terminal->karakter, 1);

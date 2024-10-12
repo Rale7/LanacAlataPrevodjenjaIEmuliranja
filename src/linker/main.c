@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
-#include "../../inc/linker/linker.h"
-#include "../../inc/linker/parsiranje_cmd.h"
+#include <unistd.h>
+
+#include "linker/linker.h"
+#include "linker/parsiranje_cmd.h"
 
 extern int optind;
 
 int main(int argc, char* argv[]) {
-
   Linker* linker = init_linker();
   const char* ime_izlazne_datoteke = NULL;
 
