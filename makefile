@@ -2,7 +2,8 @@
 CC = gcc
 CXX = g++
 CFLAGS = -g -pthread
-CFLAGS += -Iinc
+C_INCLUDE = -Iinc
+CFLAGS += $(C_INCLUDE)
 
 # Tmp folder
 TMP = ./tmp
@@ -19,14 +20,14 @@ ASM_SRC_C = $(wildcard $(ASM_DIR)/*.c)
 ASM_SRC_CPP = $(wildcard $(ASM_DIR)/*.cpp)
 
 # Objektni_fajlovi za asembler
-ASM_OBJ = $(patsubst $(ASM_DIR)/%.c, $(TMP_OBJ)/%_asm.o, $(ASM_SRC_C)) \
-          $(patsubst $(ASM_DIR)/%.cpp, $(TMP_OBJ)/%_asm.o, $(ASM_SRC_CPP)) \
-					$(TMP_OBJ)/bison_asm.o $(TMP_OBJ)/flex_asm.o
+ASM_OBJ =  $(patsubst $(ASM_DIR)/%.c, $(TMP_OBJ)/%_asm.o, $(ASM_SRC_C))
+ASM_OBJ += $(patsubst $(ASM_DIR)/%.cpp, $(TMP_OBJ)/%_asm.o, $(ASM_SRC_CPP)) 
+ASM_OBJ += $(TMP_OBJ)/bison_asm.o $(TMP_OBJ)/flex_asm.o
 
 # Zavisni fajlovi za asembler
-ASM_DEP = $(patsubst $(ASM_DIR)/%.c, $(TMP_DEP)/%_asm.d, $(ASM_SRC_C)) \
-          $(patsubst $(ASM_DIR)/%.cpp, $(TMP_DEP)/%_asm.d, $(ASM_SRC_CPP)) \
-					$(TMP_DEP)/bison_asm.d $(TMP_DEP)/flex_asm.d
+ASM_DEP =  $(patsubst $(ASM_DIR)/%.c, $(TMP_DEP)/%_asm.d, $(ASM_SRC_C))
+ASM_DEP += $(patsubst $(ASM_DIR)/%.cpp, $(TMP_DEP)/%_asm.d, $(ASM_SRC_CPP))
+ASM_DEP += $(TMP_DEP)/bison_asm.d $(TMP_DEP)/flex_asm.d
 
 ASM_PROGRAM = asembler
 
@@ -44,11 +45,11 @@ LD_DIR=./src/linker
 LD_SRC_C = $(wildcard $(LD_DIR)/*.c)
 LD_SRC_CPP = $(wildcard $(LD_DIR)/*.cpp)
 
-LD_OBJ = $(patsubst $(LD_DIR)/%.c, $(TMP_OBJ)/%_ld.o, $(LD_SRC_C)) \
-				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_OBJ)/%_ld.o, $(LD_SRC_CPP))
+LD_OBJ =  $(patsubst $(LD_DIR)/%.c, $(TMP_OBJ)/%_ld.o, $(LD_SRC_C))
+LD_OBJ += $(patsubst $(LD_DIR)/%.cpp, $(TMP_OBJ)/%_ld.o, $(LD_SRC_CPP))
 
-LD_DEP = $(patsubst $(LD_DIR)/%.c, $(TMP_DEP)/%_ld.d, $(LD_SRC_C)) \
-				 $(patsubst $(LD_DIR)/%.cpp, $(TMP_DEP)/%_ld.d, $(LD_SRC_CPP))
+LD_DEP =  $(patsubst $(LD_DIR)/%.c, $(TMP_DEP)/%_ld.d, $(LD_SRC_C))
+LD_DEP += $(patsubst $(LD_DIR)/%.cpp, $(TMP_DEP)/%_ld.d, $(LD_SRC_CPP))
 
 # Promenljive za emulator
 EM_PROGRAM = emulator
@@ -57,13 +58,11 @@ EM_DIR=./src/emulator
 EM_SRC_C = $(wildcard $(EM_DIR)/*.c)
 EM_SRC_CPP = $(wildcard $(EM_DIR)/*.cpp) 
 
-EM_OBJ =	$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%_em.o, $(EM_SRC_C)) \
-					$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%.em_o, $(EM_SRC_CPP))
+EM_OBJ =	$(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%_em.o, $(EM_SRC_C)) 
+EM_OBJ += $(patsubst $(EM_DIR)/%.c, $(TMP_OBJ)/%.em_o, $(EM_SRC_CPP))
 
-EM_DEP =	$(patsubst $(EM_DIR)/%.c, $(TMP_DEP)/%_em.d, $(EM_SRC_C)) \
-					$(patsubst $(EM_DIR)/%.cpp, $(TMP_DEP)/%_em.d, $(EM_SRC_CPP))
-
-
+EM_DEP =	$(patsubst $(EM_DIR)/%.c, $(TMP_DEP)/%_em.d, $(EM_SRC_C))
+EM_DEP += $(patsubst $(EM_DIR)/%.cpp, $(TMP_DEP)/%_em.d, $(EM_SRC_CPP))
 
 # Napravi sve fajlove
 
@@ -100,17 +99,17 @@ $(TMP_OBJ)/%_asm.o: $(BISON_FOLDER)/%.l
 # Napravi zavisne fajlove za C izvorne fajlove
 $(TMP_DEP)/%_asm.d: $(ASM_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@ $(C_INCLUDE)
 
 # Napravi zavisne fajlove za C++ izvorne fajlove
 $(TMP_DEP)/%_asm.d: $(ASM_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
+	$(CXX) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@ $(C_INCLUDE)
 
 # Napravi zavisne fajlove za fajlove leksera i parsera
 $(TMP_DEP)/%_asm.d: $(TMP_BISON)/%.c
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/$*_asm.o $< > $@ $(C_INCLUDE)
 
 # Skripta za linker
 
@@ -127,11 +126,11 @@ $(TMP_OBJ)/%_ld.o: $(LD_DIR)/%.cpp
 
 $(TMP_DEP)/%_ld.d: $(LD_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@ $(C_INCLUDE)
 
 $(TMP_DEP)/%_ld.d: $(LD_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/$*_ld.o $< > $@ $(C_INCLUDE)
 
 # Skripta za emulator
 
@@ -148,22 +147,16 @@ $(TMP_OBJ)/%_em.o: $(EM_DIR)/%.cpp
 
 $(TMP_DEP)/%_em.d: $(EM_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/%*_em.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/%*_em.o $< > $@ $(C_INCLUDE)
 
 $(TMP_DEP)/%_ld.d: $(EM_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) -MM -MT $(TMP_OBJ)/$*_em.o $< > $@
+	$(CC) -MM -MT $(TMP_OBJ)/$*_em.o $< > $@ $(C_INCLUDE)
 
 # Ukljuci dependency fajlove
-ifeq ($(MAKECMDGOALS), asembler)
 -include $(ASM_DEP)
-endif
-ifeq ($(MAKECMDGOALS), linker)
 -include $(LD_DEP)
-endif
-ifeq ($MAKECMDGOALS), emulator)
 -include $(EM_DEP)
-endif
 
 
 # Brisanje
